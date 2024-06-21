@@ -1,4 +1,4 @@
-package jp.falsystack.backend.entities;
+package jp.falsystack.backend.recruitments.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;

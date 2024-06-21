@@ -1,4 +1,4 @@
-package jp.falsystack.backend.entities;
+package jp.falsystack.backend.recruitments.entities;
 
 import lombok.RequiredArgsConstructor;
 

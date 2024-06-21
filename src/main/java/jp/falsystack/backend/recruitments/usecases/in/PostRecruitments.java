@@ -1,18 +1,19 @@
-package jp.falsystack.backend.requests;
+package jp.falsystack.backend.recruitments.usecases.in;
 
-import java.time.LocalDate;
-import java.time.Period;
-import jp.falsystack.backend.entities.ProgressMethods;
-import jp.falsystack.backend.entities.RecruitmentCategories;
+import jp.falsystack.backend.recruitments.entities.ProgressMethods;
+import jp.falsystack.backend.recruitments.entities.RecruitmentCategories;
+import jp.falsystack.backend.recruitments.entities.Recruitments;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.time.Period;
 
 @Getter
 @NoArgsConstructor
 public class PostRecruitments {
 
-  // TODO: Validation
   private RecruitmentCategories recruitmentCategories;
   private ProgressMethods progressMethods;
   private Long numberOfPeople;
@@ -23,7 +24,7 @@ public class PostRecruitments {
   private String content;
 
   @Builder
-  public PostRecruitments(
+  private PostRecruitments(
       RecruitmentCategories recruitmentCategories,
       ProgressMethods progressMethods,
       Long numberOfPeople,
@@ -40,5 +41,18 @@ public class PostRecruitments {
     this.contract = contract;
     this.subject = subject;
     this.content = content;
+  }
+
+  public Recruitments toRecruitment() {
+    return Recruitments.builder()
+            .recruitmentCategories(recruitmentCategories)
+            .progressMethods(progressMethods)
+            .numberOfPeople(numberOfPeople)
+            .progressPeriod(progressPeriod)
+            .recruitmentDeadline(recruitmentDeadline)
+            .contract(contract)
+            .subject(subject)
+            .content(content)
+            .build();
   }
 }
