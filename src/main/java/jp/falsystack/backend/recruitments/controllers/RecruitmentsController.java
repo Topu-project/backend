@@ -1,5 +1,6 @@
 package jp.falsystack.backend.recruitments.controllers;
 
+import jakarta.validation.Valid;
 import jp.falsystack.backend.recruitments.requests.PostRecruitmentsRequest;
 import jp.falsystack.backend.recruitments.usecases.RecruitmentUsecases;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ public class RecruitmentsController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void recruitments(@RequestBody PostRecruitmentsRequest postRecruitmentsRequest) {
+    public void recruitments(@RequestBody @Valid PostRecruitmentsRequest postRecruitmentsRequest) {
         recruitmentUsecases.post(postRecruitmentsRequest.toPostRecruitments());
     }
 }

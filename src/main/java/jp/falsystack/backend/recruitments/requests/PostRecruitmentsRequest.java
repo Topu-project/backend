@@ -1,5 +1,6 @@
 package jp.falsystack.backend.recruitments.requests;
 
+import jakarta.validation.constraints.NotNull;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
@@ -13,18 +14,26 @@ import java.time.Period;
 @Getter
 @NoArgsConstructor
 public class PostRecruitmentsRequest {
-    // TODO: Validation
+
+    @NotNull(message = "{notnull}")
     private RecruitmentCategories recruitmentCategories;
+    @NotNull(message = "{notnull}")
     private ProgressMethods progressMethods;
+    @NotNull(message = "{notnull}")
     private Long numberOfPeople;
+    @NotNull(message = "{notnull}")
     private Period progressPeriod;
+    @NotNull(message = "{notnull}")
     private LocalDate recruitmentDeadline;
+    @NotNull(message = "{notnull}")
     private String contract;
+    @NotNull(message = "{notnull}")
     private String subject;
+    @NotNull(message = "{notnull}")
     private String content;
 
     @Builder
-    public PostRecruitmentsRequest(
+    private PostRecruitmentsRequest(
             RecruitmentCategories recruitmentCategories,
             ProgressMethods progressMethods,
             Long numberOfPeople,
