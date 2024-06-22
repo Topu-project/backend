@@ -1,8 +1,8 @@
 package jp.falsystack.backend.recruitments.usecases.in;
 
-import jp.falsystack.backend.recruitments.entities.ProgressMethods;
-import jp.falsystack.backend.recruitments.entities.RecruitmentCategories;
 import jp.falsystack.backend.recruitments.entities.Recruitments;
+import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
+import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

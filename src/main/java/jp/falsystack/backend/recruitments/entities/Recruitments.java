@@ -1,6 +1,8 @@
 package jp.falsystack.backend.recruitments.entities;
 
 import jakarta.persistence.*;
+import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
+import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
