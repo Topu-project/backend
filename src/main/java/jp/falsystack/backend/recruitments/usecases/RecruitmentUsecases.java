@@ -6,9 +6,12 @@ import jp.falsystack.backend.recruitments.entities.TechStackTags;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentRepositories;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
+import jp.falsystack.backend.recruitments.usecases.out.RecruitmentsResponseForTopPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,5 +43,21 @@ public class RecruitmentUsecases {
         }
 
         recruitmentRepositories.save(recruitments);
+    }
+
+    @Transactional
+    public List<RecruitmentsResponseForTopPage> getRecruitments() {
+        return recruitmentRepositories.findAll().stream().map(recruitments ->
+                        RecruitmentsResponseForTopPage.builder()
+                                .recruitmentCategories(recruitments.getRecruitmentCategories())
+                                .techStacks(recruitments.getRecruitmentsTechStacks().stream()
+                                        .map(recruitmentsTechStack -> {
+                                            System.out.println("recruitmentsTechStack = " + recruitmentsTechStack);
+                                            return recruitmentsTechStack.getTechStackTags().getTechStackTagName();
+                                        }).toList())
+                                .recruitmentDeadline(recruitments.getRecruitmentDeadline())
+                                .subject(recruitments.getSubject())
+                                .build())
+                .toList();
     }
 }

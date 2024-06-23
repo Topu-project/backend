@@ -45,7 +45,7 @@ public class Recruitments extends BaseEntity {
     private Views views;
 
     @OneToMany(mappedBy = "recruitments", cascade = CascadeType.ALL)
-    private List<RecruitmentsTechStack> recruitmentsTechStacks = new ArrayList<>();
+    private List<RecruitmentsTechStack> recruitmentsTechStacks;
 
     @Builder
     private Recruitments(RecruitmentCategories recruitmentCategories, ProgressMethods progressMethods, Long numberOfPeople, Period progressPeriod, LocalDate recruitmentDeadline, String contract, String subject, String content, Views views, List<RecruitmentsTechStack> recruitmentsTechStacks) {
@@ -58,12 +58,12 @@ public class Recruitments extends BaseEntity {
         this.subject = subject;
         this.content = content;
         this.views = views;
-        this.recruitmentsTechStacks = recruitmentsTechStacks;
+        this.recruitmentsTechStacks = recruitmentsTechStacks == null ? new ArrayList<>() : recruitmentsTechStacks;
     }
 
     public void addRecruitmentsTechStack(RecruitmentsTechStack recruitmentsTechStack) {
-        if (recruitmentsTechStacks != null) {
-            this.getRecruitmentsTechStacks().add(recruitmentsTechStack);
+        if (recruitmentsTechStack != null) {
+            this.recruitmentsTechStacks.add(recruitmentsTechStack);
         }
     }
 

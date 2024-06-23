@@ -151,7 +151,12 @@ class RecruitmentsControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/recruitments")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.length()", Matchers.is(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].recruitmentCategories", Matchers.is("PROJECT")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].techStacks[0]", Matchers.is("#Spring")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].recruitmentDeadline", Matchers.is("2024-06-30")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subject", Matchers.is("테스트 데이터 : 0")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error", Matchers.nullValue()))
                 .andDo(MockMvcResultHandlers.print());
     }
 }
