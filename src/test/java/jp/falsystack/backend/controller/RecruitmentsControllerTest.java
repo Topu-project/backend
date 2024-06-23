@@ -2,6 +2,7 @@ package jp.falsystack.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jp.falsystack.backend.recruitments.entities.Recruitments;
+import jp.falsystack.backend.recruitments.entities.RecruitmentsTechStack;
 import jp.falsystack.backend.recruitments.entities.TechStackTags;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
@@ -9,6 +10,7 @@ import jp.falsystack.backend.recruitments.repositories.RecruitmentRepositories;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.requests.PostRecruitmentsRequest;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,6 +94,7 @@ class RecruitmentsControllerTest {
         PostRecruitmentsRequest request = PostRecruitmentsRequest.builder()
                 .recruitmentCategories(RecruitmentCategories.PROJECT)
                 .progressMethods(null)
+                .techStacks("#Spring#Java")
                 .numberOfPeople(3L)
                 .progressPeriod(Period.ofMonths(3))
                 .recruitmentDeadline(LocalDate.of(2024, 6, 30))
@@ -111,5 +115,43 @@ class RecruitmentsControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error.validationErrors.progressMethods").value("必須です。値を入力してください。"))
                 .andDo(MockMvcResultHandlers.print());
 
+    }
+
+    @Test
+    @DisplayName("모집 게시글의 목록을 취득할 수 있다.")
+    void getRecruitments() throws Exception {
+        // given
+        TechStackTags techStackTags = TechStackTags.of("#Spring");
+
+        var recruitments = new ArrayList<Recruitments>();
+        for (int i = 0; i < 3; i++) {
+            var recruitment = Recruitments.builder()
+                    .recruitmentCategories(RecruitmentCategories.PROJECT)
+                    .progressMethods(ProgressMethods.ALL)
+                    .numberOfPeople(i + 1L)
+                    .progressPeriod(Period.ofMonths(i + 1))
+                    .recruitmentDeadline(LocalDate.of(2024, 6, 30))
+                    .contract("opentalk@kakao.net")
+                    .subject("테스트 데이터 : " + i)
+                    .content("테스트 컨튼츠 : " + i)
+                    .build();
+
+            RecruitmentsTechStack recruitmentsTechStack = RecruitmentsTechStack.builder()
+                    .recruitments(recruitment)
+                    .techStackTags(techStackTags)
+                    .build();
+
+            recruitment.addRecruitmentsTechStack(recruitmentsTechStack);
+            techStackTags.addRecruitmentsTechStack(recruitmentsTechStack);
+            recruitments.add(recruitment);
+        }
+        recruitmentRepositories.saveAll(recruitments);
+
+        // expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/recruitments")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(3)))
+                .andDo(MockMvcResultHandlers.print());
     }
 }
