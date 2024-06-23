@@ -11,6 +11,7 @@ import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.requests.PostRecruitmentsRequest;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,12 @@ class RecruitmentsControllerTest {
     private RecruitmentRepositories recruitmentRepositories;
     @Autowired
     private TechStackTagsRepository techStackTagsRepository;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        // TODO: deleteAll 과 deleteAllInBatch 차이점 공부
+        recruitmentRepositories.deleteAll();
+    }
 
     @Transactional
     @Test
