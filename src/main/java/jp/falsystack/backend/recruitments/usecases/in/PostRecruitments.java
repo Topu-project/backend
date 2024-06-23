@@ -16,6 +16,7 @@ public class PostRecruitments {
 
   private RecruitmentCategories recruitmentCategories;
   private ProgressMethods progressMethods;
+  private String techStacks;
   private Long numberOfPeople;
   private Period progressPeriod;
   private LocalDate recruitmentDeadline;
@@ -27,6 +28,7 @@ public class PostRecruitments {
   private PostRecruitments(
       RecruitmentCategories recruitmentCategories,
       ProgressMethods progressMethods,
+      String techStacks,
       Long numberOfPeople,
       Period progressPeriod,
       LocalDate recruitmentDeadline,
@@ -35,6 +37,7 @@ public class PostRecruitments {
       String content) {
     this.recruitmentCategories = recruitmentCategories;
     this.progressMethods = progressMethods;
+    this.techStacks = techStacks;
     this.numberOfPeople = numberOfPeople;
     this.progressPeriod = progressPeriod;
     this.recruitmentDeadline = recruitmentDeadline;

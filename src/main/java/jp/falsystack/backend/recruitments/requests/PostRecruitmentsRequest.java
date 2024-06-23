@@ -20,6 +20,8 @@ public class PostRecruitmentsRequest {
     @NotNull(message = "{notnull}")
     private ProgressMethods progressMethods;
     @NotNull(message = "{notnull}")
+    private String techStacks;
+    @NotNull(message = "{notnull}")
     private Long numberOfPeople;
     @NotNull(message = "{notnull}")
     private Period progressPeriod;
@@ -36,6 +38,7 @@ public class PostRecruitmentsRequest {
     private PostRecruitmentsRequest(
             RecruitmentCategories recruitmentCategories,
             ProgressMethods progressMethods,
+            String techStacks,
             Long numberOfPeople,
             Period progressPeriod,
             LocalDate recruitmentDeadline,
@@ -44,6 +47,7 @@ public class PostRecruitmentsRequest {
             String content) {
         this.recruitmentCategories = recruitmentCategories;
         this.progressMethods = progressMethods;
+        this.techStacks = techStacks;
         this.numberOfPeople = numberOfPeople;
         this.progressPeriod = progressPeriod;
         this.recruitmentDeadline = recruitmentDeadline;
@@ -56,6 +60,7 @@ public class PostRecruitmentsRequest {
         return PostRecruitments.builder()
                 .recruitmentCategories(this.recruitmentCategories)
                 .progressMethods(this.progressMethods)
+                .techStacks(this.techStacks)
                 .numberOfPeople(this.numberOfPeople)
                 .progressPeriod(this.progressPeriod)
                 .recruitmentDeadline(this.recruitmentDeadline)

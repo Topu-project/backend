@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -42,6 +44,9 @@ public class Recruitments extends BaseEntity {
     @JoinColumn(name = "views_id")
     private Views views;
 
+    @OneToMany(mappedBy = "recruitments", cascade = CascadeType.ALL)
+    private final List<RecruitmentsTechStack> recruitmentsTechStacks = new ArrayList<>();
+
     @Builder
     private Recruitments(RecruitmentCategories recruitmentCategories, ProgressMethods progressMethods, Long numberOfPeople, Period progressPeriod, LocalDate recruitmentDeadline, String contract, String subject, String content, Views views) {
         this.recruitmentCategories = recruitmentCategories;
@@ -53,5 +58,15 @@ public class Recruitments extends BaseEntity {
         this.subject = subject;
         this.content = content;
         this.views = views;
+    }
+
+    public void addRecruitmentsTechStack(RecruitmentsTechStack recruitmentsTechStack) {
+        if (recruitmentsTechStacks != null) {
+            this.getRecruitmentsTechStacks().add(recruitmentsTechStack);
+        }
+    }
+
+    public String getRelatedTechStackName(int index) {
+        return this.recruitmentsTechStacks.get(index).getTechStackTags().getTechStackTagName();
     }
 }
