@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class Recruitments extends BaseEntity {
 
     private Long numberOfPeople;
 
-    private Period progressPeriod;
+    private Integer progressPeriod;
 
     private LocalDate recruitmentDeadline;
 
@@ -47,8 +46,11 @@ public class Recruitments extends BaseEntity {
     @OneToMany(mappedBy = "recruitments", cascade = CascadeType.ALL)
     private List<RecruitmentsTechStack> recruitmentsTechStacks;
 
+    @OneToMany(mappedBy = "recruitments", cascade = CascadeType.ALL)
+    private List<RecruitmentsRecruitmentPositionTags> recruitmentsRecruitmentPositionTags;
+
     @Builder
-    private Recruitments(RecruitmentCategories recruitmentCategories, ProgressMethods progressMethods, Long numberOfPeople, Period progressPeriod, LocalDate recruitmentDeadline, String contract, String subject, String content, Views views, List<RecruitmentsTechStack> recruitmentsTechStacks) {
+    private Recruitments(RecruitmentCategories recruitmentCategories, ProgressMethods progressMethods, Long numberOfPeople, Integer progressPeriod, LocalDate recruitmentDeadline, String contract, String subject, String content, Views views, List<RecruitmentsTechStack> recruitmentsTechStacks, List<RecruitmentsRecruitmentPositionTags> recruitmentsRecruitmentPositionTags) {
         this.recruitmentCategories = recruitmentCategories;
         this.progressMethods = progressMethods;
         this.numberOfPeople = numberOfPeople;
@@ -59,11 +61,18 @@ public class Recruitments extends BaseEntity {
         this.content = content;
         this.views = views;
         this.recruitmentsTechStacks = recruitmentsTechStacks == null ? new ArrayList<>() : recruitmentsTechStacks;
+        this.recruitmentsRecruitmentPositionTags = recruitmentsRecruitmentPositionTags == null ? new ArrayList<>() : recruitmentsRecruitmentPositionTags;
     }
 
     public void addRecruitmentsTechStack(RecruitmentsTechStack recruitmentsTechStack) {
         if (recruitmentsTechStack != null) {
             this.recruitmentsTechStacks.add(recruitmentsTechStack);
+        }
+    }
+
+    public void relateRecruitmentsRecruitmentPositionTags(RecruitmentsRecruitmentPositionTags recruitmentsRecruitmentPositionTags) {
+        if (recruitmentsRecruitmentPositionTags != null) {
+            this.recruitmentsRecruitmentPositionTags.add(recruitmentsRecruitmentPositionTags);
         }
     }
 

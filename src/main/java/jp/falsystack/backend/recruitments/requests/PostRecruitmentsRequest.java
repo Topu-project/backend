@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 @Getter
 @NoArgsConstructor
@@ -22,9 +21,11 @@ public class PostRecruitmentsRequest {
     @NotNull(message = "{notnull}")
     private String techStacks;
     @NotNull(message = "{notnull}")
+    private String recruitmentPositions;
+    @NotNull(message = "{notnull}")
     private Long numberOfPeople;
     @NotNull(message = "{notnull}")
-    private Period progressPeriod;
+    private Integer progressPeriod;
     @NotNull(message = "{notnull}")
     private LocalDate recruitmentDeadline;
     @NotNull(message = "{notnull}")
@@ -39,8 +40,9 @@ public class PostRecruitmentsRequest {
             RecruitmentCategories recruitmentCategories,
             ProgressMethods progressMethods,
             String techStacks,
+            String recruitmentPositions,
             Long numberOfPeople,
-            Period progressPeriod,
+            Integer progressPeriod,
             LocalDate recruitmentDeadline,
             String contract,
             String subject,
@@ -48,6 +50,7 @@ public class PostRecruitmentsRequest {
         this.recruitmentCategories = recruitmentCategories;
         this.progressMethods = progressMethods;
         this.techStacks = techStacks;
+        this.recruitmentPositions = recruitmentPositions;
         this.numberOfPeople = numberOfPeople;
         this.progressPeriod = progressPeriod;
         this.recruitmentDeadline = recruitmentDeadline;
@@ -61,6 +64,7 @@ public class PostRecruitmentsRequest {
                 .recruitmentCategories(this.recruitmentCategories)
                 .progressMethods(this.progressMethods)
                 .techStacks(this.techStacks)
+                .recruitmentPositions(this.recruitmentPositions)
                 .numberOfPeople(this.numberOfPeople)
                 .progressPeriod(this.progressPeriod)
                 .recruitmentDeadline(this.recruitmentDeadline)

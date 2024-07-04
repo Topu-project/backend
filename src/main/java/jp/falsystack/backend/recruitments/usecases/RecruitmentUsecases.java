@@ -1,8 +1,7 @@
 package jp.falsystack.backend.recruitments.usecases;
 
-import jp.falsystack.backend.recruitments.entities.Recruitments;
-import jp.falsystack.backend.recruitments.entities.RecruitmentsTechStack;
-import jp.falsystack.backend.recruitments.entities.TechStackTags;
+import jp.falsystack.backend.recruitments.entities.*;
+import jp.falsystack.backend.recruitments.repositories.RecruitmentPositionTagsRepository;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentRepositories;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
@@ -21,11 +20,13 @@ public class RecruitmentUsecases {
 
     private final RecruitmentRepositories recruitmentRepositories;
     private final TechStackTagsRepository techStackTagsRepository;
+    private final RecruitmentPositionTagsRepository recruitmentPositionTagsRepository;
 
     public void post(PostRecruitments postRecruitment) {
 
         Pattern pattern = Pattern.compile("#([0-9a-zA-Z가-힣ぁ-んァ-ヶー一-龯ㄱ-ㅎ]*)");
         Matcher matcher = pattern.matcher(postRecruitment.getTechStacks());
+        Matcher positionMatcher = pattern.matcher(postRecruitment.getRecruitmentPositions());
 
         Recruitments recruitments = postRecruitment.toRecruitment();
 
@@ -40,6 +41,19 @@ public class RecruitmentUsecases {
 
             techStackTags.addRecruitmentsTechStack(recruitmentsTechStack);
             recruitments.addRecruitmentsTechStack(recruitmentsTechStack);
+        }
+
+        while (positionMatcher.find()) {
+            RecruitmentPositionTags recruitmentPositionTags = recruitmentPositionTagsRepository.findByRecruitmentPositionTagName(positionMatcher.group())
+                    .orElse(RecruitmentPositionTags.of(positionMatcher.group()));
+
+            RecruitmentsRecruitmentPositionTags recruitmentsRecruitmentPositionTags = RecruitmentsRecruitmentPositionTags.builder()
+                    .recruitments(recruitments)
+                    .recruitmentPositionTags(recruitmentPositionTags)
+                    .build();
+
+            recruitmentPositionTags.relateToRecruitmentsRecruitmentPositionTags(recruitmentsRecruitmentPositionTags);
+            recruitments.relateRecruitmentsRecruitmentPositionTags(recruitmentsRecruitmentPositionTags);
         }
 
         recruitmentRepositories.save(recruitments);
