@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 @Getter
 @NoArgsConstructor
@@ -17,8 +16,9 @@ public class PostRecruitments {
   private RecruitmentCategories recruitmentCategories;
   private ProgressMethods progressMethods;
   private String techStacks;
+  private String recruitmentPositions;
   private Long numberOfPeople;
-  private Period progressPeriod;
+  private Integer progressPeriod;
   private LocalDate recruitmentDeadline;
   private String contract;
   private String subject;
@@ -29,8 +29,9 @@ public class PostRecruitments {
       RecruitmentCategories recruitmentCategories,
       ProgressMethods progressMethods,
       String techStacks,
+      String recruitmentPositions,
       Long numberOfPeople,
-      Period progressPeriod,
+      Integer progressPeriod,
       LocalDate recruitmentDeadline,
       String contract,
       String subject,
@@ -38,6 +39,7 @@ public class PostRecruitments {
     this.recruitmentCategories = recruitmentCategories;
     this.progressMethods = progressMethods;
     this.techStacks = techStacks;
+    this.recruitmentPositions = recruitmentPositions;
     this.numberOfPeople = numberOfPeople;
     this.progressPeriod = progressPeriod;
     this.recruitmentDeadline = recruitmentDeadline;
