@@ -23,26 +23,18 @@ public class RecruitmentUsecases {
     private final RecruitmentPositionTagsRepository recruitmentPositionTagsRepository;
 
     public void post(PostRecruitments postRecruitment) {
-
-        Pattern pattern = Pattern.compile("#([0-9a-zA-Z가-힣ぁ-んァ-ヶー一-龯ㄱ-ㅎ]*)");
-        Matcher matcher = pattern.matcher(postRecruitment.getTechStacks());
-        Matcher positionMatcher = pattern.matcher(postRecruitment.getRecruitmentPositions());
-
         Recruitments recruitments = postRecruitment.toRecruitment();
 
-        while (matcher.find()) {
-            TechStackTags techStackTags = techStackTagsRepository.findByTechStackTagName(matcher.group())
-                    .orElse(TechStackTags.of(matcher.group()));
+        Matcher techstackMatcher = getMatcher(postRecruitment.getTechStacks());
+        establishRelationshipWithRecruitmentsTechStack(techstackMatcher, recruitments);
 
-            RecruitmentsTechStack recruitmentsTechStack = RecruitmentsTechStack.builder()
-                    .recruitments(recruitments)
-                    .techStackTags(techStackTags)
-                    .build();
+        Matcher positionMatcher = getMatcher(postRecruitment.getRecruitmentPositions());
+        establishRelationshipWithRecruitmentsRecruitmentPositionTags(positionMatcher, recruitments);
 
-            techStackTags.addRecruitmentsTechStack(recruitmentsTechStack);
-            recruitments.addRecruitmentsTechStack(recruitmentsTechStack);
-        }
+        recruitmentRepositories.save(recruitments);
+    }
 
+    private void establishRelationshipWithRecruitmentsRecruitmentPositionTags(Matcher positionMatcher, Recruitments recruitments) {
         while (positionMatcher.find()) {
             RecruitmentPositionTags recruitmentPositionTags = recruitmentPositionTagsRepository.findByRecruitmentPositionTagName(positionMatcher.group())
                     .orElse(RecruitmentPositionTags.of(positionMatcher.group()));
@@ -55,8 +47,26 @@ public class RecruitmentUsecases {
             recruitmentPositionTags.relateToRecruitmentsRecruitmentPositionTags(recruitmentsRecruitmentPositionTags);
             recruitments.relateRecruitmentsRecruitmentPositionTags(recruitmentsRecruitmentPositionTags);
         }
+    }
 
-        recruitmentRepositories.save(recruitments);
+    private void establishRelationshipWithRecruitmentsTechStack(Matcher techstackMatcher, Recruitments recruitments) {
+        while (techstackMatcher.find()) {
+            TechStackTags techStackTags = techStackTagsRepository.findByTechStackTagName(techstackMatcher.group())
+                    .orElse(TechStackTags.of(techstackMatcher.group()));
+
+            RecruitmentsTechStack recruitmentsTechStack = RecruitmentsTechStack.builder()
+                    .recruitments(recruitments)
+                    .techStackTags(techStackTags)
+                    .build();
+
+            techStackTags.addRecruitmentsTechStack(recruitmentsTechStack);
+            recruitments.addRecruitmentsTechStack(recruitmentsTechStack);
+        }
+    }
+
+    private Matcher getMatcher(String src) {
+        Pattern pattern = Pattern.compile("#([0-9a-zA-Z가-힣ぁ-んァ-ヶー一-龯ㄱ-ㅎ]*)");
+        return pattern.matcher(src);
     }
 
     @Transactional
