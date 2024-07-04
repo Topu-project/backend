@@ -1,11 +1,13 @@
 package jp.falsystack.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jp.falsystack.backend.recruitments.entities.RecruitmentPositionTags;
 import jp.falsystack.backend.recruitments.entities.Recruitments;
 import jp.falsystack.backend.recruitments.entities.RecruitmentsTechStack;
 import jp.falsystack.backend.recruitments.entities.TechStackTags;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
+import jp.falsystack.backend.recruitments.repositories.RecruitmentPositionTagsRepository;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentRepositories;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.requests.PostRecruitmentsRequest;
@@ -25,7 +27,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +44,8 @@ class RecruitmentsControllerTest {
     private RecruitmentRepositories recruitmentRepositories;
     @Autowired
     private TechStackTagsRepository techStackTagsRepository;
+    @Autowired
+    private RecruitmentPositionTagsRepository recruitmentPositionTagsRepository;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -60,8 +63,9 @@ class RecruitmentsControllerTest {
                         .recruitmentCategories(RecruitmentCategories.PROJECT)
                         .progressMethods(ProgressMethods.ALL)
                         .techStacks("#Spring#Java")
+                        .recruitmentPositions("#Frontend#Backend#Infra")
                         .numberOfPeople(3L)
-                        .progressPeriod(Period.ofMonths(3))
+                        .progressPeriod(3)
                         .recruitmentDeadline(LocalDate.of(2024, 6, 30))
                         .contract("opentalk@kakao.net")
                         .subject("チームプロジェクトを一緒にする方を募集します")
@@ -92,6 +96,12 @@ class RecruitmentsControllerTest {
         assertThat(techStackTags.size()).isEqualTo(2);
         assertThat(techStackTags.get(0).getTechStackTagName()).isEqualTo("#Spring");
         assertThat(techStackTags.get(1).getTechStackTagName()).isEqualTo("#Java");
+
+        List<RecruitmentPositionTags> positions = recruitmentPositionTagsRepository.findAll();
+        assertThat(positions.size()).isEqualTo(3);
+        assertThat(positions.get(0).getRecruitmentPositionTagName()).isEqualTo("#Frontend");
+        assertThat(positions.get(1).getRecruitmentPositionTagName()).isEqualTo("#Backend");
+        assertThat(positions.get(2).getRecruitmentPositionTagName()).isEqualTo("#Infra");
     }
 
     @Test
@@ -103,7 +113,7 @@ class RecruitmentsControllerTest {
                 .progressMethods(null)
                 .techStacks("#Spring#Java")
                 .numberOfPeople(3L)
-                .progressPeriod(Period.ofMonths(3))
+                .progressPeriod(3)
                 .recruitmentDeadline(LocalDate.of(2024, 6, 30))
                 .contract("opentalk@kakao.net")
                 .subject("チームプロジェクトを一緒にする方を募集します")
@@ -136,7 +146,7 @@ class RecruitmentsControllerTest {
                     .recruitmentCategories(RecruitmentCategories.PROJECT)
                     .progressMethods(ProgressMethods.ALL)
                     .numberOfPeople(i + 1L)
-                    .progressPeriod(Period.ofMonths(i + 1))
+                    .progressPeriod(i + 1)
                     .recruitmentDeadline(LocalDate.of(2024, 6, 30))
                     .contract("opentalk@kakao.net")
                     .subject("테스트 데이터 : " + i)

@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import javax.management.openmbean.SimpleType;
 import java.time.LocalDate;
-import java.time.Period;
 
 import static javax.management.openmbean.SimpleType.LONG;
 import static javax.management.openmbean.SimpleType.STRING;
@@ -45,8 +44,9 @@ public class RecruitmentsControllerDocTest {
                         .recruitmentCategories(RecruitmentCategories.PROJECT)
                         .progressMethods(ProgressMethods.ALL)
                         .techStacks("#Spring#Java")
+                        .recruitmentPositions("#Backend#Frontend#Infra")
                         .numberOfPeople(3L)
-                        .progressPeriod(Period.ofMonths(3))
+                        .progressPeriod(3)
                         .recruitmentDeadline(LocalDate.of(2024, 6, 30))
                         .contract("opentalk@kakao.net")
                         .subject("チームプロジェクトを一緒にする方を募集します")
@@ -69,6 +69,7 @@ public class RecruitmentsControllerDocTest {
                                 PayloadDocumentation.fieldWithPath("recruitmentCategories").type(STRING).description("모집 카테고리"),
                                 PayloadDocumentation.fieldWithPath("progressMethods").type(STRING).description("진행방법"),
                                 PayloadDocumentation.fieldWithPath("techStacks").type(STRING).description("기술 스택"),
+                                PayloadDocumentation.fieldWithPath("recruitmentPositions").type(STRING).description("모집 포지션"),
                                 PayloadDocumentation.fieldWithPath("numberOfPeople").type(LONG).description("모집 인원"),
                                 PayloadDocumentation.fieldWithPath("progressPeriod").type("Period").description("모집 기간"),
                                 PayloadDocumentation.fieldWithPath("recruitmentDeadline").type(SimpleType.DATE).description("마감 날짜"),
