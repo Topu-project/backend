@@ -70,15 +70,17 @@ public class RecruitmentUsecases {
     }
 
     @Transactional
-    public List<RecruitmentsResponseForTopPage> getRecruitments() {
+    public List<RecruitmentsResponseForTopPage> getRecruitmentsForIndexPage() {
         return recruitmentRepositories.findAll().stream().map(recruitments ->
                         RecruitmentsResponseForTopPage.builder()
                                 .recruitmentCategories(recruitments.getRecruitmentCategories())
                                 .techStacks(recruitments.getRecruitmentsTechStacks().stream()
-                                        .map(recruitmentsTechStack -> {
-                                            System.out.println("recruitmentsTechStack = " + recruitmentsTechStack);
-                                            return recruitmentsTechStack.getTechStackTags().getTechStackTagName();
-                                        }).toList())
+                                        .map(recruitmentsTechStack ->
+                                                recruitmentsTechStack.getTechStackTags().getTechStackTagName()).toList())
+                                .recruitmentPositions(recruitments.getRecruitmentsRecruitmentPositionTags().stream()
+                                        .map(recruitmentsRecruitmentPositionTags ->
+                                                recruitmentsRecruitmentPositionTags.getRecruitmentPositionTags()
+                                                        .getRecruitmentPositionTagName()).toList())
                                 .recruitmentDeadline(recruitments.getRecruitmentDeadline())
                                 .subject(recruitments.getSubject())
                                 .build())

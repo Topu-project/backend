@@ -28,6 +28,6 @@ public class RecruitmentsController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public TopuServiceResponse<List<RecruitmentsResponseForTopPage>, RecruitmentsErrorResponse> recruitments() {
-        return TopuServiceResponse.from(recruitmentUsecases.getRecruitments(), null);
+        return TopuServiceResponse.from(recruitmentUsecases.getRecruitmentsForIndexPage(), null);
     }
 }

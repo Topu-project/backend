@@ -17,12 +17,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.management.openmbean.SimpleType;
 import java.time.LocalDate;
 
-import static javax.management.openmbean.SimpleType.LONG;
-import static javax.management.openmbean.SimpleType.STRING;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
+import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
+import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 
 @SpringBootTest
 @AutoConfigureRestDocs
@@ -70,9 +69,9 @@ public class RecruitmentsControllerDocTest {
                                 PayloadDocumentation.fieldWithPath("progressMethods").type(STRING).description("진행방법"),
                                 PayloadDocumentation.fieldWithPath("techStacks").type(STRING).description("기술 스택"),
                                 PayloadDocumentation.fieldWithPath("recruitmentPositions").type(STRING).description("모집 포지션"),
-                                PayloadDocumentation.fieldWithPath("numberOfPeople").type(LONG).description("모집 인원"),
-                                PayloadDocumentation.fieldWithPath("progressPeriod").type("Period").description("모집 기간"),
-                                PayloadDocumentation.fieldWithPath("recruitmentDeadline").type(SimpleType.DATE).description("마감 날짜"),
+                                PayloadDocumentation.fieldWithPath("numberOfPeople").type(NUMBER).description("모집 인원"),
+                                PayloadDocumentation.fieldWithPath("progressPeriod").type(NUMBER).description("모집 기간"),
+                                PayloadDocumentation.fieldWithPath("recruitmentDeadline").type(STRING).description("마감 날짜"),
                                 PayloadDocumentation.fieldWithPath("contract").type(STRING).description("연락처"),
                                 PayloadDocumentation.fieldWithPath("subject").type(STRING).description("제목"),
                                 PayloadDocumentation.fieldWithPath("content").type(STRING).description("내용")
