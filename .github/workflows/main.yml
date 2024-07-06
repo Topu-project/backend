@@ -48,7 +48,7 @@ jobs:
           name: Package
 
       - name: List files in build/libs (debugging)
-        run: ls -la build/libs
+        run: ls -la .
 
       - uses: actions/checkout@v4
 
