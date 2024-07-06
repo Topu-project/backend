@@ -59,7 +59,6 @@ tasks {
     test {
         outputs.dir(snippetsDir)
         useJUnitPlatform()
-        reports.html.outputLocation = file("docs")
     }
 
     // asciidoctor Task 추가
