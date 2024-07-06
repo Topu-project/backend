@@ -4,14 +4,19 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+  pages: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   push:
     runs-on: ubuntu-latest
     # `permissions` を設定しないと OIDC が使えないので注意
-    permissions:
-      id-token: write
-      contents: read
-      pages: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
