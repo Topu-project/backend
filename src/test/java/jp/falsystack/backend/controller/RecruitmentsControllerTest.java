@@ -1,10 +1,7 @@
 package jp.falsystack.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jp.falsystack.backend.recruitments.entities.RecruitmentPositionTags;
-import jp.falsystack.backend.recruitments.entities.Recruitments;
-import jp.falsystack.backend.recruitments.entities.RecruitmentsTechStack;
-import jp.falsystack.backend.recruitments.entities.TechStackTags;
+import jp.falsystack.backend.recruitments.entities.*;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentPositionTagsRepository;
@@ -22,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,6 +43,8 @@ class RecruitmentsControllerTest {
     private TechStackTagsRepository techStackTagsRepository;
     @Autowired
     private RecruitmentPositionTagsRepository recruitmentPositionTagsRepository;
+    @Autowired
+    private RecruitmentsRepository recruitmentsRepository;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -81,7 +80,7 @@ class RecruitmentsControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonString))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andDo(MockMvcResultHandlers.print());
+                .andDo(print());
 
         // then
         Recruitments findRecruitment = recruitmentRepositories.findAll().get(0);
@@ -130,12 +129,12 @@ class RecruitmentsControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error.code").value(400))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error.message").value("Bad Request"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error.validationErrors.progressMethods").value("必須です。値を入力してください。"))
-                .andDo(MockMvcResultHandlers.print());
+                .andDo(print());
 
     }
 
     @Test
-    @DisplayName("모집 게시글의 목록을 취득할 수 있다.")
+    @DisplayName("Index page 에서 보이는 모집 게시글의 전체 목록을 취득할 수 있다.")
     void getRecruitments() throws Exception {
         // given
         TechStackTags techStackTags = TechStackTags.of("#Spring");
@@ -174,6 +173,75 @@ class RecruitmentsControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].recruitmentDeadline", Matchers.is("2024-06-30")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subject", Matchers.is("테스트 데이터 : 0")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error", Matchers.nullValue()))
-                .andDo(MockMvcResultHandlers.print());
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("모집 응모글을 클릭하면 상세 내용과 페이지 뷰를 확인할 수 있다")
+    void getRecruitmentsById() throws Exception {
+        // given
+        // 모집 기술 스택
+        var recruitments1 = Recruitments.builder()
+                .recruitmentCategories(RecruitmentCategories.PROJECT)
+                .progressMethods(ProgressMethods.ALL)
+                .numberOfPeople(3L)
+                .progressPeriod(3)
+                .recruitmentDeadline(LocalDate.of(2024, 6, 30))
+                .contract("opentalk@kakao.net")
+                .subject("チームプロジェクトを一緒にする方を募集します")
+                .content("面白いチームプロジェクト")
+                .build();
+
+        var springTag = TechStackTags.of("#Spring");
+        var javaTag = TechStackTags.of("#Java");
+
+        var javaRecruitments = RecruitmentsTechStack.builder()
+                .recruitments(recruitments1)
+                .techStackTags(javaTag)
+                .build();
+
+        var springRecruitments = RecruitmentsTechStack.builder()
+                .recruitments(recruitments1)
+                .techStackTags(springTag)
+                .build();
+
+        recruitments1.relateToRecruitmentsTechStack(javaRecruitments);
+        recruitments1.relateToRecruitmentsTechStack(springRecruitments);
+
+        // 모집 포지션
+        var backendEngineer = RecruitmentPositionTags.of("#Backend");
+        var infraEngineer = RecruitmentPositionTags.of("#Infra");
+
+        var backendRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+                .recruitments(recruitments1)
+                .recruitmentPositionTags(backendEngineer)
+                .build();
+
+        var infraRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+                .recruitments(recruitments1)
+                .recruitmentPositionTags(infraEngineer)
+                .build();
+
+        recruitments1.relateRecruitmentsRecruitmentPositionTags(backendRecruitments);
+        recruitments1.relateRecruitmentsRecruitmentPositionTags(infraRecruitments);
+        recruitmentsRepository.save(recruitments1);
+
+        // expected
+        mockMvc.perform(MockMvcRequestBuilders.get("recruitments/{id}", 1)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].recruitmentCategories", Matchers.is("PROJECT")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].progressMethods", Matchers.is("ALL")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].numberOfPeople", Matchers.is(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].progressPeriod", Matchers.is(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].recruitmentDeadline", Matchers.is("2024-06-30")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].contract", Matchers.is("opentalk@kakao.net")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subject", Matchers.is("チームプロジェクトを一緒にする方を募集します")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].content", Matchers.is("面白いチームプロジェクト")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].views", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].techStacks[0]", Matchers.is("#Spring")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].techStacks[1]", Matchers.is("#Java")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].positions[0]", Matchers.is("#Backend")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].positions[1]", Matchers.is("#Infra")))
+                .andDo(print());
     }
 }
