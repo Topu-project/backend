@@ -8,7 +8,7 @@ import jp.falsystack.backend.recruitments.entities.TechStackTags;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentPositionTagsRepository;
-import jp.falsystack.backend.recruitments.repositories.RecruitmentRepositories;
+import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.requests.PostRecruitmentsRequest;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
@@ -41,7 +41,7 @@ class RecruitmentsControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private RecruitmentRepositories recruitmentRepositories;
+    private RecruitmentsRepository recruitmentRepositories;
     @Autowired
     private TechStackTagsRepository techStackTagsRepository;
     @Autowired
@@ -158,7 +158,7 @@ class RecruitmentsControllerTest {
                     .techStackTags(techStackTags)
                     .build();
 
-            recruitment.addRecruitmentsTechStack(recruitmentsTechStack);
+            recruitment.relateToRecruitmentsTechStack(recruitmentsTechStack);
             techStackTags.addRecruitmentsTechStack(recruitmentsTechStack);
             recruitments.add(recruitment);
         }

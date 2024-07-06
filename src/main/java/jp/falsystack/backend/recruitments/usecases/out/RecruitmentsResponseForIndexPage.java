@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-public class RecruitmentsResponseForTopPage {
+public class RecruitmentsResponseForIndexPage {
     private final RecruitmentCategories recruitmentCategories;
     private final List<String> techStacks;
     private final List<String> recruitmentPositions;
@@ -16,7 +16,7 @@ public class RecruitmentsResponseForTopPage {
     private final String subject;
 
     @Builder
-    private RecruitmentsResponseForTopPage(RecruitmentCategories recruitmentCategories, List<String> techStacks, List<String> recruitmentPositions, LocalDate recruitmentDeadline, String subject) {
+    private RecruitmentsResponseForIndexPage(RecruitmentCategories recruitmentCategories, List<String> techStacks, List<String> recruitmentPositions, LocalDate recruitmentDeadline, String subject) {
         this.recruitmentCategories = recruitmentCategories;
         this.techStacks = techStacks;
         this.recruitmentPositions = recruitmentPositions;

@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import jp.falsystack.backend.recruitments.controllers.out.RecruitmentsErrorResponse;
 import jp.falsystack.backend.recruitments.requests.PostRecruitmentsRequest;
 import jp.falsystack.backend.recruitments.usecases.RecruitmentUsecases;
-import jp.falsystack.backend.recruitments.usecases.out.RecruitmentsResponseForTopPage;
+import jp.falsystack.backend.recruitments.usecases.out.RecruitmentsResponseForIndexPage;
 import jp.falsystack.backend.web.out.TopuServiceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,7 @@ public class RecruitmentsController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public TopuServiceResponse<List<RecruitmentsResponseForTopPage>, RecruitmentsErrorResponse> recruitments() {
+    public TopuServiceResponse<List<RecruitmentsResponseForIndexPage>, RecruitmentsErrorResponse> recruitments() {
         return TopuServiceResponse.from(recruitmentUsecases.getRecruitmentsForIndexPage(), null);
     }
 }

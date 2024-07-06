@@ -1,9 +1,12 @@
 package jp.falsystack.backend.docs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jp.falsystack.backend.recruitments.entities.*;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
+import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +23,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.time.LocalDate;
 
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
-import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
-import static org.springframework.restdocs.payload.JsonFieldType.STRING;
+import static org.springframework.restdocs.payload.JsonFieldType.*;
 
 @SpringBootTest
 @AutoConfigureRestDocs
@@ -33,6 +35,9 @@ public class RecruitmentsControllerDocTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private RecruitmentsRepository recruitmentsRepository;
 
     @Test
     @DisplayName("모집 응모글을 작성할 수 있다")
@@ -77,5 +82,114 @@ public class RecruitmentsControllerDocTest {
                                 PayloadDocumentation.fieldWithPath("content").type(STRING).description("내용")
                         )));
     }
+
+    @Test
+    @DisplayName("인덱스페이지 모집 응모 리스트")
+    void getRecruitmentsForIndexPage() throws Exception {
+        // given
+
+        // 모집 기술 스택
+        Recruitments recruitments1 = Recruitments.builder()
+                .recruitmentCategories(RecruitmentCategories.PROJECT)
+                .progressMethods(ProgressMethods.ALL)
+                .numberOfPeople(3L)
+                .progressPeriod(3)
+                .recruitmentDeadline(LocalDate.of(2024, 6, 30))
+                .contract("opentalk@kakao.net")
+                .subject("チームプロジェクトを一緒にする方を募集します")
+                .content("面白いチームプロジェクト")
+                .build();
+
+        TechStackTags springTag = TechStackTags.of("#Spring");
+        TechStackTags javaTag = TechStackTags.of("#Java");
+
+        RecruitmentsTechStack javaRecruitments = RecruitmentsTechStack.builder()
+                .recruitments(recruitments1)
+                .techStackTags(javaTag)
+                .build();
+
+        RecruitmentsTechStack springRecruitments = RecruitmentsTechStack.builder()
+                .recruitments(recruitments1)
+                .techStackTags(springTag)
+                .build();
+
+        recruitments1.relateToRecruitmentsTechStack(javaRecruitments);
+        recruitments1.relateToRecruitmentsTechStack(springRecruitments);
+
+        // 모집 포지션
+        var backendEngineer = RecruitmentPositionTags.of("#Backend");
+        var infraEngineer = RecruitmentPositionTags.of("#Infra");
+
+        var backendRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+                .recruitments(recruitments1)
+                .recruitmentPositionTags(backendEngineer)
+                .build();
+
+        var infraRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+                .recruitments(recruitments1)
+                .recruitmentPositionTags(infraEngineer)
+                .build();
+
+        recruitments1.relateRecruitmentsRecruitmentPositionTags(backendRecruitments);
+        recruitments1.relateRecruitmentsRecruitmentPositionTags(infraRecruitments);
+        recruitmentsRepository.save(recruitments1);
+
+
+        //
+        Recruitments recruitments2 = Recruitments.builder()
+                .recruitmentCategories(RecruitmentCategories.PROJECT)
+                .progressMethods(ProgressMethods.ALL)
+                .numberOfPeople(1L)
+                .progressPeriod(2)
+                .recruitmentDeadline(LocalDate.of(2024, 7, 30))
+                .contract("opentalk@kakao.net")
+                .subject("チームプロジェクトを一緒にするフロントエンドエンジニアの方を募集します")
+                .content("面白いチームプロジェクト")
+                .build();
+
+        TechStackTags reactTag = TechStackTags.of("#React");
+        TechStackTags typescriptTag = TechStackTags.of("#Typescript");
+
+        RecruitmentsTechStack reactRecruitments = RecruitmentsTechStack.builder()
+                .recruitments(recruitments2)
+                .techStackTags(reactTag)
+                .build();
+
+        RecruitmentsTechStack typescriptRecruitments = RecruitmentsTechStack.builder()
+                .recruitments(recruitments2)
+                .techStackTags(typescriptTag)
+                .build();
+
+        recruitments2.relateToRecruitmentsTechStack(reactRecruitments);
+        recruitments2.relateToRecruitmentsTechStack(typescriptRecruitments);
+
+        // 모집 포지션
+        var frontendEngineer = RecruitmentPositionTags.of("#Frontend");
+
+        var frontendRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+                .recruitments(recruitments2)
+                .recruitmentPositionTags(frontendEngineer)
+                .build();
+
+        recruitments2.relateRecruitmentsRecruitmentPositionTags(frontendRecruitments);
+        recruitmentsRepository.save(recruitments2);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/recruitments")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(2)))
+                .andDo(MockMvcRestDocumentation.document("get-recruitments-for-index-page",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        PayloadDocumentation.responseFields(
+                                PayloadDocumentation.fieldWithPath("data.[].recruitmentCategories").type(STRING).description("모집 카테고리"),
+                                PayloadDocumentation.fieldWithPath("data.[].techStacks").type(ARRAY).description("기술 스택"),
+                                PayloadDocumentation.fieldWithPath("data.[].recruitmentPositions").type(ARRAY).description("모집 포지션"),
+                                PayloadDocumentation.fieldWithPath("data.[].recruitmentDeadline").type(STRING).description("모집 마감일"),
+                                PayloadDocumentation.fieldWithPath("data.[].subject").type(STRING).description("모집 게시글 제목"),
+                                PayloadDocumentation.fieldWithPath("error").type(NULL).description("에러가없으면 null")
+                        )));
+    }
+
 
 }

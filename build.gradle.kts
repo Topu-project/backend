@@ -19,16 +19,13 @@ configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
     }
-    asciidoctorExt
 }
 
 repositories {
     mavenCentral()
 }
 
-val asciidoctorExt = configurations.create("asciidoctorExt") {
-    extendsFrom(configurations["testImplementation"])
-}
+val asciidoctorExt: Configuration by configurations.creating // 2. configuration 추가
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -49,4 +46,45 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// sinppetsDir 추가
+val snippetsDir by extra {
+    file("build/generated-snippets")
+}
+
+tasks {
+
+    // test Task snippetsDir 추가
+    test {
+        outputs.dir(snippetsDir)
+        useJUnitPlatform()
+    }
+
+    // asciidoctor Task 추가
+    asciidoctor {
+        inputs.dir(snippetsDir)
+        configurations("asciidoctorExt")
+        dependsOn(test)
+    }
+
+    // bootJar Settings
+    bootJar {
+        dependsOn(asciidoctor)
+        from("build/docs/asciidoc") {
+            into("static/docs")
+        }
+    }
+
+    // 생성된 asciidoc index.html 을 src/man/resources/static/docs 에 복사
+    register<Copy>("copyAsciidoctor") {
+        dependsOn(asciidoctor)
+        from(file("$layout.buildDirectory/docs/asciidoc"))
+        into(file("src/main/resources/static/docs"))
+    }
+
+    // 빌드가 실행될 때 copyAsciidoctor 이 실행되도록 설정
+    build {
+        dependsOn("copyAsciidoctor")
+    }
 }

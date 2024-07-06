@@ -2,10 +2,10 @@ package jp.falsystack.backend.recruitments.usecases;
 
 import jp.falsystack.backend.recruitments.entities.*;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentPositionTagsRepository;
-import jp.falsystack.backend.recruitments.repositories.RecruitmentRepositories;
+import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
-import jp.falsystack.backend.recruitments.usecases.out.RecruitmentsResponseForTopPage;
+import jp.falsystack.backend.recruitments.usecases.out.RecruitmentsResponseForIndexPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class RecruitmentUsecases {
 
-    private final RecruitmentRepositories recruitmentRepositories;
+    private final RecruitmentsRepository recruitmentRepositories;
     private final TechStackTagsRepository techStackTagsRepository;
     private final RecruitmentPositionTagsRepository recruitmentPositionTagsRepository;
 
@@ -60,7 +60,7 @@ public class RecruitmentUsecases {
                     .build();
 
             techStackTags.addRecruitmentsTechStack(recruitmentsTechStack);
-            recruitments.addRecruitmentsTechStack(recruitmentsTechStack);
+            recruitments.relateToRecruitmentsTechStack(recruitmentsTechStack);
         }
     }
 
@@ -70,9 +70,9 @@ public class RecruitmentUsecases {
     }
 
     @Transactional
-    public List<RecruitmentsResponseForTopPage> getRecruitmentsForIndexPage() {
+    public List<RecruitmentsResponseForIndexPage> getRecruitmentsForIndexPage() {
         return recruitmentRepositories.findAll().stream().map(recruitments ->
-                        RecruitmentsResponseForTopPage.builder()
+                        RecruitmentsResponseForIndexPage.builder()
                                 .recruitmentCategories(recruitments.getRecruitmentCategories())
                                 .techStacks(recruitments.getRecruitmentsTechStacks().stream()
                                         .map(recruitmentsTechStack ->

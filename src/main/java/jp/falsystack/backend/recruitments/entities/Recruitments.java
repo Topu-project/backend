@@ -64,7 +64,7 @@ public class Recruitments extends BaseEntity {
         this.recruitmentsRecruitmentPositionTags = recruitmentsRecruitmentPositionTags == null ? new ArrayList<>() : recruitmentsRecruitmentPositionTags;
     }
 
-    public void addRecruitmentsTechStack(RecruitmentsTechStack recruitmentsTechStack) {
+    public void relateToRecruitmentsTechStack(RecruitmentsTechStack recruitmentsTechStack) {
         if (recruitmentsTechStack != null) {
             this.recruitmentsTechStacks.add(recruitmentsTechStack);
         }
