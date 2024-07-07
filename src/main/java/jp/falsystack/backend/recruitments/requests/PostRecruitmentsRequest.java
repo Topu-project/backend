@@ -23,7 +23,7 @@ public class PostRecruitmentsRequest {
     @NotNull(message = "{notnull}")
     private String recruitmentPositions;
     @NotNull(message = "{notnull}")
-    private Long numberOfPeople;
+    private Integer numberOfPeople;
     @NotNull(message = "{notnull}")
     private Integer progressPeriod;
     @NotNull(message = "{notnull}")
@@ -41,7 +41,7 @@ public class PostRecruitmentsRequest {
             ProgressMethods progressMethods,
             String techStacks,
             String recruitmentPositions,
-            Long numberOfPeople,
+            Integer numberOfPeople,
             Integer progressPeriod,
             LocalDate recruitmentDeadline,
             String contract,

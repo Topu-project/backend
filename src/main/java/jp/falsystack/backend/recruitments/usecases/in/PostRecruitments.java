@@ -17,7 +17,7 @@ public class PostRecruitments {
   private ProgressMethods progressMethods;
   private String techStacks;
   private String recruitmentPositions;
-  private Long numberOfPeople;
+  private Integer numberOfPeople;
   private Integer progressPeriod;
   private LocalDate recruitmentDeadline;
   private String contract;
@@ -30,7 +30,7 @@ public class PostRecruitments {
       ProgressMethods progressMethods,
       String techStacks,
       String recruitmentPositions,
-      Long numberOfPeople,
+      Integer numberOfPeople,
       Integer progressPeriod,
       LocalDate recruitmentDeadline,
       String contract,
@@ -58,6 +58,7 @@ public class PostRecruitments {
             .contract(contract)
             .subject(subject)
             .content(content)
+            .views(0L)
             .build();
   }
 }

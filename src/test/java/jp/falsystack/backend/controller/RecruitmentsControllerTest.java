@@ -63,7 +63,7 @@ class RecruitmentsControllerTest {
                         .progressMethods(ProgressMethods.ALL)
                         .techStacks("#Spring#Java")
                         .recruitmentPositions("#Frontend#Backend#Infra")
-                        .numberOfPeople(3L)
+                        .numberOfPeople(3)
                         .progressPeriod(3)
                         .recruitmentDeadline(LocalDate.of(2024, 6, 30))
                         .contract("opentalk@kakao.net")
@@ -111,7 +111,7 @@ class RecruitmentsControllerTest {
                 .recruitmentCategories(RecruitmentCategories.PROJECT)
                 .progressMethods(null)
                 .techStacks("#Spring#Java")
-                .numberOfPeople(3L)
+                .numberOfPeople(3)
                 .progressPeriod(3)
                 .recruitmentDeadline(LocalDate.of(2024, 6, 30))
                 .contract("opentalk@kakao.net")
@@ -144,7 +144,7 @@ class RecruitmentsControllerTest {
             var recruitment = Recruitments.builder()
                     .recruitmentCategories(RecruitmentCategories.PROJECT)
                     .progressMethods(ProgressMethods.ALL)
-                    .numberOfPeople(i + 1L)
+                    .numberOfPeople(i + 1)
                     .progressPeriod(i + 1)
                     .recruitmentDeadline(LocalDate.of(2024, 6, 30))
                     .contract("opentalk@kakao.net")
@@ -184,16 +184,17 @@ class RecruitmentsControllerTest {
         var recruitments1 = Recruitments.builder()
                 .recruitmentCategories(RecruitmentCategories.PROJECT)
                 .progressMethods(ProgressMethods.ALL)
-                .numberOfPeople(3L)
+                .numberOfPeople(3)
                 .progressPeriod(3)
                 .recruitmentDeadline(LocalDate.of(2024, 6, 30))
                 .contract("opentalk@kakao.net")
                 .subject("チームプロジェクトを一緒にする方を募集します")
                 .content("面白いチームプロジェクト")
+                .views(0L)
                 .build();
 
-        var springTag = TechStackTags.of("#Spring");
         var javaTag = TechStackTags.of("#Java");
+        var springTag = TechStackTags.of("#Spring");
 
         var javaRecruitments = RecruitmentsTechStack.builder()
                 .recruitments(recruitments1)
@@ -224,24 +225,24 @@ class RecruitmentsControllerTest {
 
         recruitments1.relateRecruitmentsRecruitmentPositionTags(backendRecruitments);
         recruitments1.relateRecruitmentsRecruitmentPositionTags(infraRecruitments);
-        recruitmentsRepository.save(recruitments1);
+        Recruitments savedRecruitments = recruitmentsRepository.save(recruitments1);
 
         // expected
-        mockMvc.perform(MockMvcRequestBuilders.get("recruitments/{id}", 1)
+        mockMvc.perform(MockMvcRequestBuilders.get("/recruitments/{recruitmentId}", savedRecruitments.getId())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].recruitmentCategories", Matchers.is("PROJECT")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].progressMethods", Matchers.is("ALL")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].numberOfPeople", Matchers.is(3)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].progressPeriod", Matchers.is(3)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].recruitmentDeadline", Matchers.is("2024-06-30")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].contract", Matchers.is("opentalk@kakao.net")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].subject", Matchers.is("チームプロジェクトを一緒にする方を募集します")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].content", Matchers.is("面白いチームプロジェクト")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].views", Matchers.is(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].techStacks[0]", Matchers.is("#Spring")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].techStacks[1]", Matchers.is("#Java")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].positions[0]", Matchers.is("#Backend")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].positions[1]", Matchers.is("#Infra")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.recruitmentCategories", Matchers.is("PROJECT")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.progressMethods", Matchers.is("ALL")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.numberOfPeople", Matchers.is(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.progressPeriod", Matchers.is(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.recruitmentDeadline", Matchers.is("2024-06-30")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.contract", Matchers.is("opentalk@kakao.net")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.subject", Matchers.is("チームプロジェクトを一緒にする方を募集します")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.content", Matchers.is("面白いチームプロジェクト")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.views", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.techStacks[0]", Matchers.is("#Java")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.techStacks[1]", Matchers.is("#Spring")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.recruitmentPositions[0]", Matchers.is("#Backend")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.recruitmentPositions[1]", Matchers.is("#Infra")))
                 .andDo(print());
     }
 }

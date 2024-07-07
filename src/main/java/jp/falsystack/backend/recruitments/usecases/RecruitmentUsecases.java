@@ -1,10 +1,12 @@
 package jp.falsystack.backend.recruitments.usecases;
 
 import jp.falsystack.backend.recruitments.entities.*;
+import jp.falsystack.backend.recruitments.entities.exception.RecruitmentsNotFoundException;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentPositionTagsRepository;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
+import jp.falsystack.backend.recruitments.usecases.out.RecruitmentsResponseForDetailPage;
 import jp.falsystack.backend.recruitments.usecases.out.RecruitmentsResponseForIndexPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class RecruitmentUsecases {
     private final RecruitmentsRepository recruitmentRepositories;
     private final TechStackTagsRepository techStackTagsRepository;
     private final RecruitmentPositionTagsRepository recruitmentPositionTagsRepository;
+    private final RecruitmentsRepository recruitmentsRepository;
 
     public void post(PostRecruitments postRecruitment) {
         Recruitments recruitments = postRecruitment.toRecruitment();
@@ -85,5 +88,35 @@ public class RecruitmentUsecases {
                                 .subject(recruitments.getSubject())
                                 .build())
                 .toList();
+    }
+
+    public RecruitmentsResponseForDetailPage getRecruitmentsById(Long recruitmentId) {
+        // get recruitments
+        var foundRecruitments = recruitmentRepositories.findById(recruitmentId)
+                .orElseThrow(RecruitmentsNotFoundException::new);
+
+        // add count to views
+        foundRecruitments.increasePageViews();
+        var updatedRecruitments = recruitmentsRepository.save(foundRecruitments);
+
+        // return recruitments
+        return RecruitmentsResponseForDetailPage.builder()
+                .recruitmentCategories(updatedRecruitments.getRecruitmentCategories())
+                .progressMethods(updatedRecruitments.getProgressMethods())
+                .numberOfPeople(updatedRecruitments.getNumberOfPeople())
+                .progressPeriod(updatedRecruitments.getProgressPeriod())
+                .recruitmentDeadline(updatedRecruitments.getRecruitmentDeadline())
+                .subject(updatedRecruitments.getSubject())
+                .contract(updatedRecruitments.getContract())
+                .content(updatedRecruitments.getContent())
+                .views(updatedRecruitments.getViews())
+                .techStacks(updatedRecruitments.getRecruitmentsTechStacks().stream()
+                        .map(recruitmentsTechStack ->
+                                recruitmentsTechStack.getTechStackTags().getTechStackTagName()).toList())
+                .recruitmentPositions(updatedRecruitments.getRecruitmentsRecruitmentPositionTags().stream()
+                        .map(recruitmentsRecruitmentPositionTags ->
+                                recruitmentsRecruitmentPositionTags.getRecruitmentPositionTags()
+                                        .getRecruitmentPositionTagName()).toList())
+                .build();
     }
 }

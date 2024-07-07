@@ -1,6 +1,7 @@
 package jp.falsystack.backend.recruitments.controllers;
 
 import jp.falsystack.backend.recruitments.controllers.out.RecruitmentsErrorResponse;
+import jp.falsystack.backend.recruitments.entities.exception.RecruitmentsException;
 import jp.falsystack.backend.web.out.TopuServiceResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,16 @@ public class ExceptionController {
                 .code(HttpStatus.BAD_REQUEST.value())
                 .message(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .validationErrors(convertFieldErrorsListToFieldErrorsMap(ex.getFieldErrors()))
+                .build());
+    }
+
+    @ExceptionHandler(RecruitmentsException.class)
+    public TopuServiceResponse recruitmentsException(RecruitmentsException ex) {
+        log.error(ex.getMessage());
+
+        return TopuServiceResponse.from(null, RecruitmentsErrorResponse.builder()
+                .code(ex.getStatusCode())
+                .message(ex.getMessage())
                 .build());
     }
 }

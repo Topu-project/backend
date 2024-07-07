@@ -26,7 +26,7 @@ public class Recruitments extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProgressMethods progressMethods;
 
-    private Long numberOfPeople;
+    private Integer numberOfPeople;
 
     private Integer progressPeriod;
 
@@ -39,9 +39,7 @@ public class Recruitments extends BaseEntity {
     @Lob
     private String content;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "views_id")
-    private Views views;
+    private Long views;
 
     @OneToMany(mappedBy = "recruitments", cascade = CascadeType.ALL)
     private List<RecruitmentsTechStack> recruitmentsTechStacks;
@@ -50,7 +48,7 @@ public class Recruitments extends BaseEntity {
     private List<RecruitmentsRecruitmentPositionTags> recruitmentsRecruitmentPositionTags;
 
     @Builder
-    private Recruitments(RecruitmentCategories recruitmentCategories, ProgressMethods progressMethods, Long numberOfPeople, Integer progressPeriod, LocalDate recruitmentDeadline, String contract, String subject, String content, Views views, List<RecruitmentsTechStack> recruitmentsTechStacks, List<RecruitmentsRecruitmentPositionTags> recruitmentsRecruitmentPositionTags) {
+    private Recruitments(RecruitmentCategories recruitmentCategories, ProgressMethods progressMethods, Integer numberOfPeople, Integer progressPeriod, LocalDate recruitmentDeadline, String contract, String subject, String content, Long views, List<RecruitmentsTechStack> recruitmentsTechStacks, List<RecruitmentsRecruitmentPositionTags> recruitmentsRecruitmentPositionTags) {
         this.recruitmentCategories = recruitmentCategories;
         this.progressMethods = progressMethods;
         this.numberOfPeople = numberOfPeople;
@@ -78,5 +76,9 @@ public class Recruitments extends BaseEntity {
 
     public String getRelatedTechStackName(int index) {
         return this.recruitmentsTechStacks.get(index).getTechStackTags().getTechStackTagName();
+    }
+
+    public void increasePageViews() {
+        this.views += 1;
     }
 }
