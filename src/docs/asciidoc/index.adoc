@@ -3,6 +3,7 @@
 
 == Recruitments
 
+// Create Recruitments
 === Create Recruitments
 
 ==== HTTP Request
@@ -21,6 +22,7 @@ include::{snippets}/post-recruitments/request-fields.adoc[]
 
 include::{snippets}/post-recruitments/http-response.adoc[]
 
+// Recruitments Response for Index page
 === Recruitments Response for Index page
 
 ==== HTTP Request
@@ -38,3 +40,28 @@ include::{snippets}/get-recruitments-for-index-page/response-body.adoc[]
 ==== Response Fields
 
 include::{snippets}/get-recruitments-for-index-page/response-fields.adoc[]
+
+// Get Recruitment By ID
+## # Get Recruitment By ID
+
+### HTTP Request
+
+include::{snippets}/get-recruitments-by-id/http-request.adoc[]
+
+### Request Path Parameter
+
+include::{snippets}/get-recruitments-by-id/path-parameters.adoc[]
+
+### HTTP Response
+
+include::{snippets}/get-recruitments-by-id/http-response.adoc[]
+
+### Response Body
+
+include::{snippets}/get-recruitments-by-id/response-body.adoc[]
+
+### Response Fields
+
+include::{snippets}/get-recruitments-by-id/response-fields.adoc[]
+
+
