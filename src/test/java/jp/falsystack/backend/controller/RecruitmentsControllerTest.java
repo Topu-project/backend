@@ -1,10 +1,20 @@
 package jp.falsystack.backend.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jp.falsystack.backend.recruitments.entities.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import jp.falsystack.backend.recruitments.entities.PositionTags;
+import jp.falsystack.backend.recruitments.entities.Recruitments;
+import jp.falsystack.backend.recruitments.entities.RecruitmentsPositionTags;
+import jp.falsystack.backend.recruitments.entities.RecruitmentsTechStack;
+import jp.falsystack.backend.recruitments.entities.TechStackTags;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
-import jp.falsystack.backend.recruitments.repositories.RecruitmentPositionTagsRepository;
+import jp.falsystack.backend.recruitments.repositories.PositionTagsRepository;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.requests.PostRecruitmentsRequest;
@@ -22,13 +32,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 class RecruitmentsControllerTest {
@@ -42,12 +45,12 @@ class RecruitmentsControllerTest {
     @Autowired
     private TechStackTagsRepository techStackTagsRepository;
     @Autowired
-    private RecruitmentPositionTagsRepository recruitmentPositionTagsRepository;
+    private PositionTagsRepository positionTagsRepository;
     @Autowired
     private RecruitmentsRepository recruitmentsRepository;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         // TODO: deleteAll 과 deleteAllInBatch 차이점 공부
         recruitmentRepositories.deleteAll();
     }
@@ -83,7 +86,7 @@ class RecruitmentsControllerTest {
                 .andDo(print());
 
         // then
-        Recruitments findRecruitment = recruitmentRepositories.findAll().get(0);
+        Recruitments findRecruitment = recruitmentRepositories.findAll().getFirst();
         assertThat(recruitmentRepositories.count()).isEqualTo(1);
         assertThat(findRecruitment.getContract()).isEqualTo("opentalk@kakao.net");
         assertThat(findRecruitment.getSubject()).isEqualTo("チームプロジェクトを一緒にする方を募集します");
@@ -92,15 +95,15 @@ class RecruitmentsControllerTest {
         assertThat(findRecruitment.getRelatedTechStackName(1)).isEqualTo("#Java");
 
         List<TechStackTags> techStackTags = techStackTagsRepository.findAll();
-        assertThat(techStackTags.size()).isEqualTo(2);
+        assertThat(techStackTags).hasSize(2);
         assertThat(techStackTags.get(0).getTechStackTagName()).isEqualTo("#Spring");
         assertThat(techStackTags.get(1).getTechStackTagName()).isEqualTo("#Java");
 
-        List<RecruitmentPositionTags> positions = recruitmentPositionTagsRepository.findAll();
-        assertThat(positions.size()).isEqualTo(3);
-        assertThat(positions.get(0).getRecruitmentPositionTagName()).isEqualTo("#Frontend");
-        assertThat(positions.get(1).getRecruitmentPositionTagName()).isEqualTo("#Backend");
-        assertThat(positions.get(2).getRecruitmentPositionTagName()).isEqualTo("#Infra");
+        List<PositionTags> positions = positionTagsRepository.findAll();
+        assertThat(positions).hasSize(3);
+        assertThat(positions.get(0).getPositionTagName()).isEqualTo("#Frontend");
+        assertThat(positions.get(1).getPositionTagName()).isEqualTo("#Backend");
+        assertThat(positions.get(2).getPositionTagName()).isEqualTo("#Infra");
     }
 
     @Test
@@ -210,17 +213,17 @@ class RecruitmentsControllerTest {
         recruitments1.relateToRecruitmentsTechStack(springRecruitments);
 
         // 모집 포지션
-        var backendEngineer = RecruitmentPositionTags.of("#Backend");
-        var infraEngineer = RecruitmentPositionTags.of("#Infra");
+        var backendEngineer = PositionTags.of("#Backend");
+        var infraEngineer = PositionTags.of("#Infra");
 
-        var backendRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+        var backendRecruitments = RecruitmentsPositionTags.builder()
                 .recruitments(recruitments1)
-                .recruitmentPositionTags(backendEngineer)
+            .positionTags(backendEngineer)
                 .build();
 
-        var infraRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+        var infraRecruitments = RecruitmentsPositionTags.builder()
                 .recruitments(recruitments1)
-                .recruitmentPositionTags(infraEngineer)
+            .positionTags(infraEngineer)
                 .build();
 
         recruitments1.relateRecruitmentsRecruitmentPositionTags(backendRecruitments);

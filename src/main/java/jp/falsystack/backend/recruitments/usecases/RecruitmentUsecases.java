@@ -1,8 +1,15 @@
 package jp.falsystack.backend.recruitments.usecases;
 
-import jp.falsystack.backend.recruitments.entities.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import jp.falsystack.backend.recruitments.entities.PositionTags;
+import jp.falsystack.backend.recruitments.entities.Recruitments;
+import jp.falsystack.backend.recruitments.entities.RecruitmentsPositionTags;
+import jp.falsystack.backend.recruitments.entities.RecruitmentsTechStack;
+import jp.falsystack.backend.recruitments.entities.TechStackTags;
 import jp.falsystack.backend.recruitments.entities.exception.RecruitmentsNotFoundException;
-import jp.falsystack.backend.recruitments.repositories.RecruitmentPositionTagsRepository;
+import jp.falsystack.backend.recruitments.repositories.PositionTagsRepository;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
@@ -12,17 +19,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @Service
 @RequiredArgsConstructor
 public class RecruitmentUsecases {
 
     private final RecruitmentsRepository recruitmentRepositories;
     private final TechStackTagsRepository techStackTagsRepository;
-    private final RecruitmentPositionTagsRepository recruitmentPositionTagsRepository;
+    private final PositionTagsRepository positionTagsRepository;
     private final RecruitmentsRepository recruitmentsRepository;
 
     public void post(PostRecruitments postRecruitment) {
@@ -39,16 +42,17 @@ public class RecruitmentUsecases {
 
     private void establishRelationshipWithRecruitmentsRecruitmentPositionTags(Matcher positionMatcher, Recruitments recruitments) {
         while (positionMatcher.find()) {
-            RecruitmentPositionTags recruitmentPositionTags = recruitmentPositionTagsRepository.findByRecruitmentPositionTagName(positionMatcher.group())
-                    .orElse(RecruitmentPositionTags.of(positionMatcher.group()));
+            PositionTags positionTags = positionTagsRepository.findByPositionTagName(
+                    positionMatcher.group())
+                .orElse(PositionTags.of(positionMatcher.group()));
 
-            RecruitmentsRecruitmentPositionTags recruitmentsRecruitmentPositionTags = RecruitmentsRecruitmentPositionTags.builder()
+            RecruitmentsPositionTags recruitmentsPositionTags = RecruitmentsPositionTags.builder()
                     .recruitments(recruitments)
-                    .recruitmentPositionTags(recruitmentPositionTags)
+                .positionTags(positionTags)
                     .build();
 
-            recruitmentPositionTags.relateToRecruitmentsRecruitmentPositionTags(recruitmentsRecruitmentPositionTags);
-            recruitments.relateRecruitmentsRecruitmentPositionTags(recruitmentsRecruitmentPositionTags);
+            positionTags.relateToRecruitmentsRecruitmentPositionTags(recruitmentsPositionTags);
+            recruitments.relateRecruitmentsRecruitmentPositionTags(recruitmentsPositionTags);
         }
     }
 
@@ -80,10 +84,11 @@ public class RecruitmentUsecases {
                                 .techStacks(recruitments.getRecruitmentsTechStacks().stream()
                                         .map(recruitmentsTechStack ->
                                                 recruitmentsTechStack.getTechStackTags().getTechStackTagName()).toList())
-                                .recruitmentPositions(recruitments.getRecruitmentsRecruitmentPositionTags().stream()
+                            .recruitmentPositions(
+                                recruitments.getRecruitmentsPositionTags().stream()
                                         .map(recruitmentsRecruitmentPositionTags ->
-                                                recruitmentsRecruitmentPositionTags.getRecruitmentPositionTags()
-                                                        .getRecruitmentPositionTagName()).toList())
+                                            recruitmentsRecruitmentPositionTags.getPositionTags()
+                                                .getPositionTagName()).toList())
                                 .recruitmentDeadline(recruitments.getRecruitmentDeadline())
                                 .subject(recruitments.getSubject())
                                 .build())
@@ -113,10 +118,10 @@ public class RecruitmentUsecases {
                 .techStacks(updatedRecruitments.getRecruitmentsTechStacks().stream()
                         .map(recruitmentsTechStack ->
                                 recruitmentsTechStack.getTechStackTags().getTechStackTagName()).toList())
-                .recruitmentPositions(updatedRecruitments.getRecruitmentsRecruitmentPositionTags().stream()
+            .recruitmentPositions(updatedRecruitments.getRecruitmentsPositionTags().stream()
                         .map(recruitmentsRecruitmentPositionTags ->
-                                recruitmentsRecruitmentPositionTags.getRecruitmentPositionTags()
-                                        .getRecruitmentPositionTagName()).toList())
+                            recruitmentsRecruitmentPositionTags.getPositionTags()
+                                .getPositionTagName()).toList())
                 .build();
     }
 }

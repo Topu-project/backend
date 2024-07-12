@@ -1,15 +1,23 @@
 package jp.falsystack.backend.recruitments.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -45,10 +53,14 @@ public class Recruitments extends BaseEntity {
     private List<RecruitmentsTechStack> recruitmentsTechStacks;
 
     @OneToMany(mappedBy = "recruitments", cascade = CascadeType.ALL)
-    private List<RecruitmentsRecruitmentPositionTags> recruitmentsRecruitmentPositionTags;
+    private List<RecruitmentsPositionTags> recruitmentsPositionTags;
 
     @Builder
-    private Recruitments(RecruitmentCategories recruitmentCategories, ProgressMethods progressMethods, Integer numberOfPeople, Integer progressPeriod, LocalDate recruitmentDeadline, String contract, String subject, String content, Long views, List<RecruitmentsTechStack> recruitmentsTechStacks, List<RecruitmentsRecruitmentPositionTags> recruitmentsRecruitmentPositionTags) {
+    private Recruitments(RecruitmentCategories recruitmentCategories,
+        ProgressMethods progressMethods, Integer numberOfPeople, Integer progressPeriod,
+        LocalDate recruitmentDeadline, String contract, String subject, String content, Long views,
+        List<RecruitmentsTechStack> recruitmentsTechStacks,
+        List<RecruitmentsPositionTags> recruitmentsPositionTags) {
         this.recruitmentCategories = recruitmentCategories;
         this.progressMethods = progressMethods;
         this.numberOfPeople = numberOfPeople;
@@ -59,7 +71,8 @@ public class Recruitments extends BaseEntity {
         this.content = content;
         this.views = views;
         this.recruitmentsTechStacks = recruitmentsTechStacks == null ? new ArrayList<>() : recruitmentsTechStacks;
-        this.recruitmentsRecruitmentPositionTags = recruitmentsRecruitmentPositionTags == null ? new ArrayList<>() : recruitmentsRecruitmentPositionTags;
+        this.recruitmentsPositionTags = recruitmentsPositionTags
+            == null ? new ArrayList<>() : recruitmentsPositionTags;
     }
 
     public void relateToRecruitmentsTechStack(RecruitmentsTechStack recruitmentsTechStack) {
@@ -68,9 +81,10 @@ public class Recruitments extends BaseEntity {
         }
     }
 
-    public void relateRecruitmentsRecruitmentPositionTags(RecruitmentsRecruitmentPositionTags recruitmentsRecruitmentPositionTags) {
-        if (recruitmentsRecruitmentPositionTags != null) {
-            this.recruitmentsRecruitmentPositionTags.add(recruitmentsRecruitmentPositionTags);
+    public void relateRecruitmentsRecruitmentPositionTags(
+        RecruitmentsPositionTags recruitmentsPositionTags) {
+        if (recruitmentsPositionTags != null) {
+            this.recruitmentsPositionTags.add(recruitmentsPositionTags);
         }
     }
 

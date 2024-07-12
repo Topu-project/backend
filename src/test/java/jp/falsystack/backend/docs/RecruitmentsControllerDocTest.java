@@ -1,7 +1,23 @@
 package jp.falsystack.backend.docs;
 
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.JsonFieldType.ARRAY;
+import static org.springframework.restdocs.payload.JsonFieldType.NULL;
+import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
+import static org.springframework.restdocs.payload.JsonFieldType.STRING;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jp.falsystack.backend.recruitments.entities.*;
+import java.time.LocalDate;
+import jp.falsystack.backend.recruitments.entities.PositionTags;
+import jp.falsystack.backend.recruitments.entities.Recruitments;
+import jp.falsystack.backend.recruitments.entities.RecruitmentsPositionTags;
+import jp.falsystack.backend.recruitments.entities.RecruitmentsTechStack;
+import jp.falsystack.backend.recruitments.entities.TechStackTags;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
@@ -21,18 +37,10 @@ import org.springframework.restdocs.payload.PayloadDocumentation;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.time.LocalDate;
-
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
-import static org.springframework.restdocs.payload.JsonFieldType.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
 @SpringBootTest
 @AutoConfigureRestDocs
 @AutoConfigureMockMvc
-public class RecruitmentsControllerDocTest {
+class RecruitmentsControllerDocTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,7 +52,7 @@ public class RecruitmentsControllerDocTest {
     private RecruitmentsRepository recruitmentsRepository;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         recruitmentsRepository.deleteAll();
     }
 
@@ -126,17 +134,17 @@ public class RecruitmentsControllerDocTest {
         recruitments1.relateToRecruitmentsTechStack(springRecruitments);
 
         // 모집 포지션
-        var backendEngineer = RecruitmentPositionTags.of("#Backend");
-        var infraEngineer = RecruitmentPositionTags.of("#Infra");
+        var backendEngineer = PositionTags.of("#Backend");
+        var infraEngineer = PositionTags.of("#Infra");
 
-        var backendRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+        var backendRecruitments = RecruitmentsPositionTags.builder()
                 .recruitments(recruitments1)
-                .recruitmentPositionTags(backendEngineer)
+            .positionTags(backendEngineer)
                 .build();
 
-        var infraRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+        var infraRecruitments = RecruitmentsPositionTags.builder()
                 .recruitments(recruitments1)
-                .recruitmentPositionTags(infraEngineer)
+            .positionTags(infraEngineer)
                 .build();
 
         recruitments1.relateRecruitmentsRecruitmentPositionTags(backendRecruitments);
@@ -173,11 +181,11 @@ public class RecruitmentsControllerDocTest {
         recruitments2.relateToRecruitmentsTechStack(typescriptRecruitments);
 
         // 모집 포지션
-        var frontendEngineer = RecruitmentPositionTags.of("#Frontend");
+        var frontendEngineer = PositionTags.of("#Frontend");
 
-        var frontendRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+        var frontendRecruitments = RecruitmentsPositionTags.builder()
                 .recruitments(recruitments2)
-                .recruitmentPositionTags(frontendEngineer)
+            .positionTags(frontendEngineer)
                 .build();
 
         recruitments2.relateRecruitmentsRecruitmentPositionTags(frontendRecruitments);
@@ -234,17 +242,17 @@ public class RecruitmentsControllerDocTest {
         recruitments1.relateToRecruitmentsTechStack(springRecruitments);
 
         // 모집 포지션
-        var backendEngineer = RecruitmentPositionTags.of("#Backend");
-        var infraEngineer = RecruitmentPositionTags.of("#Infra");
+        var backendEngineer = PositionTags.of("#Backend");
+        var infraEngineer = PositionTags.of("#Infra");
 
-        var backendRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+        var backendRecruitments = RecruitmentsPositionTags.builder()
                 .recruitments(recruitments1)
-                .recruitmentPositionTags(backendEngineer)
+            .positionTags(backendEngineer)
                 .build();
 
-        var infraRecruitments = RecruitmentsRecruitmentPositionTags.builder()
+        var infraRecruitments = RecruitmentsPositionTags.builder()
                 .recruitments(recruitments1)
-                .recruitmentPositionTags(infraEngineer)
+            .positionTags(infraEngineer)
                 .build();
 
         recruitments1.relateRecruitmentsRecruitmentPositionTags(backendRecruitments);
