@@ -20,7 +20,9 @@ import jp.falsystack.backend.recruitments.entities.RecruitmentsTechStack;
 import jp.falsystack.backend.recruitments.entities.TechStackTags;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
+import jp.falsystack.backend.recruitments.repositories.PositionTagsRepository;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
+import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,10 +52,16 @@ class RecruitmentsControllerDocTest {
 
     @Autowired
     private RecruitmentsRepository recruitmentsRepository;
+    @Autowired
+    private PositionTagsRepository positionTagsRepository;
+    @Autowired
+    private TechStackTagsRepository techStackTagsRepository;
 
     @BeforeEach
     void setUp() {
         recruitmentsRepository.deleteAll();
+        positionTagsRepository.deleteAll();
+        techStackTagsRepository.deleteAll();
     }
 
     @Test

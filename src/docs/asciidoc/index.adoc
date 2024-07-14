@@ -64,4 +64,22 @@ include::{snippets}/get-recruitments-by-id/response-body.adoc[]
 
 include::{snippets}/get-recruitments-by-id/response-fields.adoc[]
 
+// Get Position Tag Names
+=== Get Position Tag Names
+
+==== HTTP Request
+
+include::{snippets}/get-position-tag-names/http-request.adoc[]
+
+==== HTTP Response
+
+include::{snippets}/get-position-tag-names/http-response.adoc[]
+
+==== Response Body
+
+include::{snippets}/get-position-tag-names/response-body.adoc[]
+
+==== Response Fields
+
+include::{snippets}/get-position-tag-names/response-fields.adoc[]
 
