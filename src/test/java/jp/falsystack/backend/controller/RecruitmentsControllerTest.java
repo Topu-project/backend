@@ -264,4 +264,61 @@ class RecruitmentsControllerTest {
             Matchers.is("#Infra")))
         .andDo(print());
   }
+
+  @Test
+  @DisplayName("모집 게시글을 삭제할 수 있다")
+  void deleteRecruitmentById() throws Exception {
+    // given
+    // 모집 기술 스택
+    var recruitments1 = Recruitments.builder()
+        .recruitmentCategories(RecruitmentCategories.PROJECT)
+        .progressMethods(ProgressMethods.ALL)
+        .numberOfPeople(3)
+        .progressPeriod(3)
+        .recruitmentDeadline(LocalDate.of(2024, 6, 30))
+        .contract("opentalk@kakao.net")
+        .subject("チームプロジェクトを一緒にする方を募集します")
+        .content("面白いチームプロジェクト")
+        .views(0L)
+        .build();
+
+    var javaTag = TechStackTags.of("#Java");
+    var springTag = TechStackTags.of("#Spring");
+
+    var javaRecruitments = RecruitmentsTechStack.builder()
+        .recruitments(recruitments1)
+        .techStackTags(javaTag)
+        .build();
+
+    var springRecruitments = RecruitmentsTechStack.builder()
+        .recruitments(recruitments1)
+        .techStackTags(springTag)
+        .build();
+
+    recruitments1.relateToRecruitmentsTechStack(javaRecruitments);
+    recruitments1.relateToRecruitmentsTechStack(springRecruitments);
+
+    // 모집 포지션
+    var backendEngineer = PositionTags.of("#Backend");
+    var infraEngineer = PositionTags.of("#Infra");
+
+    var backendRecruitments = RecruitmentsPositionTags.builder()
+        .recruitments(recruitments1)
+        .positionTags(backendEngineer)
+        .build();
+
+    var infraRecruitments = RecruitmentsPositionTags.builder()
+        .recruitments(recruitments1)
+        .positionTags(infraEngineer)
+        .build();
+
+    recruitments1.relateRecruitmentsRecruitmentPositionTags(backendRecruitments);
+    recruitments1.relateRecruitmentsRecruitmentPositionTags(infraRecruitments);
+    var savedRecruitments = recruitmentsRepository.save(recruitments1);
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.delete("/recruitments/{recruitmentId}", savedRecruitments.getId()))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andDo(print());
+  }
 }
