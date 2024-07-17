@@ -23,105 +23,116 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RecruitmentUsecases {
 
-    private final RecruitmentsRepository recruitmentRepositories;
-    private final TechStackTagsRepository techStackTagsRepository;
-    private final PositionTagsRepository positionTagsRepository;
-    private final RecruitmentsRepository recruitmentsRepository;
+  private final RecruitmentsRepository recruitmentRepositories;
+  private final TechStackTagsRepository techStackTagsRepository;
+  private final PositionTagsRepository positionTagsRepository;
+  private final RecruitmentsRepository recruitmentsRepository;
 
-    public void post(PostRecruitments postRecruitment) {
-        Recruitments recruitments = postRecruitment.toRecruitment();
+  public void post(PostRecruitments postRecruitment) {
+    Recruitments recruitments = postRecruitment.toRecruitment();
 
-        Matcher techstackMatcher = getMatcher(postRecruitment.getTechStacks());
-        establishRelationshipWithRecruitmentsTechStack(techstackMatcher, recruitments);
+    Matcher techstackMatcher = getMatcher(postRecruitment.getTechStacks());
+    establishRelationshipWithRecruitmentsTechStack(techstackMatcher, recruitments);
 
-        Matcher positionMatcher = getMatcher(postRecruitment.getRecruitmentPositions());
-        establishRelationshipWithRecruitmentsRecruitmentPositionTags(positionMatcher, recruitments);
+    Matcher positionMatcher = getMatcher(postRecruitment.getRecruitmentPositions());
+    establishRelationshipWithRecruitmentsRecruitmentPositionTags(positionMatcher, recruitments);
 
-        recruitmentRepositories.save(recruitments);
+    recruitmentRepositories.save(recruitments);
+  }
+
+  private void establishRelationshipWithRecruitmentsRecruitmentPositionTags(Matcher positionMatcher,
+      Recruitments recruitments) {
+    while (positionMatcher.find()) {
+      PositionTags positionTags = positionTagsRepository.findByPositionTagName(
+              positionMatcher.group())
+          .orElse(PositionTags.of(positionMatcher.group()));
+
+      RecruitmentsPositionTags recruitmentsPositionTags = RecruitmentsPositionTags.builder()
+          .recruitments(recruitments)
+          .positionTags(positionTags)
+          .build();
+
+      positionTags.relateToRecruitmentsRecruitmentPositionTags(recruitmentsPositionTags);
+      recruitments.relateRecruitmentsRecruitmentPositionTags(recruitmentsPositionTags);
     }
+  }
 
-    private void establishRelationshipWithRecruitmentsRecruitmentPositionTags(Matcher positionMatcher, Recruitments recruitments) {
-        while (positionMatcher.find()) {
-            PositionTags positionTags = positionTagsRepository.findByPositionTagName(
-                    positionMatcher.group())
-                .orElse(PositionTags.of(positionMatcher.group()));
+  private void establishRelationshipWithRecruitmentsTechStack(Matcher techstackMatcher,
+      Recruitments recruitments) {
+    while (techstackMatcher.find()) {
+      TechStackTags techStackTags = techStackTagsRepository.findByTechStackTagName(
+              techstackMatcher.group())
+          .orElse(TechStackTags.of(techstackMatcher.group()));
 
-            RecruitmentsPositionTags recruitmentsPositionTags = RecruitmentsPositionTags.builder()
-                    .recruitments(recruitments)
-                .positionTags(positionTags)
-                    .build();
+      RecruitmentsTechStack recruitmentsTechStack = RecruitmentsTechStack.builder()
+          .recruitments(recruitments)
+          .techStackTags(techStackTags)
+          .build();
 
-            positionTags.relateToRecruitmentsRecruitmentPositionTags(recruitmentsPositionTags);
-            recruitments.relateRecruitmentsRecruitmentPositionTags(recruitmentsPositionTags);
-        }
+      techStackTags.addRecruitmentsTechStack(recruitmentsTechStack);
+      recruitments.relateToRecruitmentsTechStack(recruitmentsTechStack);
     }
+  }
 
-    private void establishRelationshipWithRecruitmentsTechStack(Matcher techstackMatcher, Recruitments recruitments) {
-        while (techstackMatcher.find()) {
-            TechStackTags techStackTags = techStackTagsRepository.findByTechStackTagName(techstackMatcher.group())
-                    .orElse(TechStackTags.of(techstackMatcher.group()));
+  private Matcher getMatcher(String src) {
+    Pattern pattern = Pattern.compile("#([0-9a-zA-Z가-힣ぁ-んァ-ヶー一-龯ㄱ-ㅎ]*)");
+    return pattern.matcher(src);
+  }
 
-            RecruitmentsTechStack recruitmentsTechStack = RecruitmentsTechStack.builder()
-                    .recruitments(recruitments)
-                    .techStackTags(techStackTags)
-                    .build();
-
-            techStackTags.addRecruitmentsTechStack(recruitmentsTechStack);
-            recruitments.relateToRecruitmentsTechStack(recruitmentsTechStack);
-        }
-    }
-
-    private Matcher getMatcher(String src) {
-        Pattern pattern = Pattern.compile("#([0-9a-zA-Z가-힣ぁ-んァ-ヶー一-龯ㄱ-ㅎ]*)");
-        return pattern.matcher(src);
-    }
-
-    @Transactional
-    public List<RecruitmentsResponseForIndexPage> getRecruitmentsForIndexPage() {
-        return recruitmentRepositories.findAll().stream().map(recruitments ->
-                        RecruitmentsResponseForIndexPage.builder()
-                                .recruitmentCategories(recruitments.getRecruitmentCategories())
-                                .techStacks(recruitments.getRecruitmentsTechStacks().stream()
-                                        .map(recruitmentsTechStack ->
-                                                recruitmentsTechStack.getTechStackTags().getTechStackTagName()).toList())
-                            .recruitmentPositions(
-                                recruitments.getRecruitmentsPositionTags().stream()
-                                        .map(recruitmentsRecruitmentPositionTags ->
-                                            recruitmentsRecruitmentPositionTags.getPositionTags()
-                                                .getPositionTagName()).toList())
-                                .recruitmentDeadline(recruitments.getRecruitmentDeadline())
-                                .subject(recruitments.getSubject())
-                                .build())
-                .toList();
-    }
-
-    public RecruitmentsResponseForDetailPage getRecruitmentsById(Long recruitmentId) {
-        // get recruitments
-        var foundRecruitments = recruitmentRepositories.findById(recruitmentId)
-                .orElseThrow(RecruitmentsNotFoundException::new);
-
-        // add count to views
-        foundRecruitments.increasePageViews();
-        var updatedRecruitments = recruitmentsRepository.save(foundRecruitments);
-
-        // return recruitments
-        return RecruitmentsResponseForDetailPage.builder()
-                .recruitmentCategories(updatedRecruitments.getRecruitmentCategories())
-                .progressMethods(updatedRecruitments.getProgressMethods())
-                .numberOfPeople(updatedRecruitments.getNumberOfPeople())
-                .progressPeriod(updatedRecruitments.getProgressPeriod())
-                .recruitmentDeadline(updatedRecruitments.getRecruitmentDeadline())
-                .subject(updatedRecruitments.getSubject())
-                .contract(updatedRecruitments.getContract())
-                .content(updatedRecruitments.getContent())
-                .views(updatedRecruitments.getViews())
-                .techStacks(updatedRecruitments.getRecruitmentsTechStacks().stream()
-                        .map(recruitmentsTechStack ->
-                                recruitmentsTechStack.getTechStackTags().getTechStackTagName()).toList())
-            .recruitmentPositions(updatedRecruitments.getRecruitmentsPositionTags().stream()
+  @Transactional
+  public List<RecruitmentsResponseForIndexPage> getRecruitmentsForIndexPage() {
+    return recruitmentRepositories.findAll().stream().map(recruitments ->
+            RecruitmentsResponseForIndexPage.builder()
+                .recruitmentCategories(recruitments.getRecruitmentCategories())
+                .techStacks(recruitments.getRecruitmentsTechStacks().stream()
+                    .map(recruitmentsTechStack ->
+                        recruitmentsTechStack.getTechStackTags().getTechStackTagName()).toList())
+                .recruitmentPositions(
+                    recruitments.getRecruitmentsPositionTags().stream()
                         .map(recruitmentsRecruitmentPositionTags ->
                             recruitmentsRecruitmentPositionTags.getPositionTags()
                                 .getPositionTagName()).toList())
-                .build();
-    }
+                .recruitmentDeadline(recruitments.getRecruitmentDeadline())
+                .subject(recruitments.getSubject())
+                .build())
+        .toList();
+  }
+
+  public RecruitmentsResponseForDetailPage getRecruitmentsById(Long recruitmentId) {
+    // get recruitments
+    var foundRecruitments = recruitmentRepositories.findById(recruitmentId)
+        .orElseThrow(RecruitmentsNotFoundException::new);
+
+    // add count to views
+    foundRecruitments.increasePageViews();
+    var updatedRecruitments = recruitmentsRepository.save(foundRecruitments);
+
+    // return recruitments
+    return RecruitmentsResponseForDetailPage.builder()
+        .recruitmentCategories(updatedRecruitments.getRecruitmentCategories())
+        .progressMethods(updatedRecruitments.getProgressMethods())
+        .numberOfPeople(updatedRecruitments.getNumberOfPeople())
+        .progressPeriod(updatedRecruitments.getProgressPeriod())
+        .recruitmentDeadline(updatedRecruitments.getRecruitmentDeadline())
+        .subject(updatedRecruitments.getSubject())
+        .contract(updatedRecruitments.getContract())
+        .content(updatedRecruitments.getContent())
+        .views(updatedRecruitments.getViews())
+        .techStacks(updatedRecruitments.getRecruitmentsTechStacks().stream()
+            .map(recruitmentsTechStack ->
+                recruitmentsTechStack.getTechStackTags().getTechStackTagName()).toList())
+        .recruitmentPositions(updatedRecruitments.getRecruitmentsPositionTags().stream()
+            .map(recruitmentsRecruitmentPositionTags ->
+                recruitmentsRecruitmentPositionTags.getPositionTags()
+                    .getPositionTagName()).toList())
+        .build();
+  }
+
+  public void deleteRecruitmentById(Long recruitmentId) {
+    recruitmentsRepository.findById(recruitmentId).ifPresentOrElse(
+        recruitmentsRepository::delete, () -> {
+          throw new RecruitmentsNotFoundException();
+        });
+
+  }
 }

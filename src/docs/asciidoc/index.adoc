@@ -83,3 +83,17 @@ include::{snippets}/get-position-tag-names/response-body.adoc[]
 
 include::{snippets}/get-position-tag-names/response-fields.adoc[]
 
+// Delete Recruitment By ID
+=== Delete Recruitment By ID
+
+==== HTTP Request
+
+include::{snippets}/delete-recruitment-by-id/http-request.adoc[]
+
+==== Request Path Parameter
+
+include::{snippets}/delete-recruitment-by-id/path-parameters.adoc[]
+
+==== HTTP Response
+
+include::{snippets}/delete-recruitment-by-id/http-response.adoc[]
