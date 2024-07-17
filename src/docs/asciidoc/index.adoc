@@ -22,8 +22,8 @@ include::{snippets}/post-recruitments/request-fields.adoc[]
 
 include::{snippets}/post-recruitments/http-response.adoc[]
 
-// Recruitments Response for Index page
-=== Recruitments Response for Index page
+// Get Recruitments list for index pageπ
+=== Get Recruitments list for index page
 
 ==== HTTP Request
 
