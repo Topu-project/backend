@@ -16,3 +16,4 @@
 ## Release 2.x
 
 - [ ] : Microservice Architecture
+- [ ] : Chat Service Or Mail Service with Golang
