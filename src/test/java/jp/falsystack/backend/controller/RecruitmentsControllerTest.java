@@ -18,9 +18,10 @@ import jp.falsystack.backend.recruitments.repositories.PositionTagsRepository;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.requests.PostRecruitmentsRequest;
+import jp.falsystack.backend.recruitments.requests.UpdateRecruitmentsRequest;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,13 +48,12 @@ class RecruitmentsControllerTest {
   @Autowired
   private RecruitmentsRepository recruitmentsRepository;
 
-  @BeforeEach
-  void setUp() {
+  @AfterEach
+  void afterEach() {
     // TODO: deleteAll 과 deleteAllInBatch 차이점 공부
     recruitmentsRepository.deleteAll();
     positionTagsRepository.deleteAll();
     techStackTagsRepository.deleteAll();
-
   }
 
   @Transactional
@@ -320,5 +320,89 @@ class RecruitmentsControllerTest {
             MockMvcRequestBuilders.delete("/recruitments/{recruitmentId}", savedRecruitments.getId()))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andDo(print());
+  }
+
+  @Transactional
+  @Test
+  @DisplayName("모집 응모글을 갱신 할 수 있다")
+  void updateRecruitmentById() throws Exception {
+
+    // 모집 기술 스택
+    var recruitments1 = Recruitments.builder()
+        .recruitmentCategories(RecruitmentCategories.PROJECT)
+        .progressMethods(ProgressMethods.ALL)
+        .numberOfPeople(3)
+        .progressPeriod(3)
+        .recruitmentDeadline(LocalDate.of(2024, 6, 30))
+        .contract("opentalk@kakao.net")
+        .subject("チームプロジェクトを一緒にする方を募集します")
+        .content("面白いチームプロジェクト")
+        .views(0L)
+        .build();
+
+    var javaTag = TechStackTags.of("#Java");
+    var springTag = TechStackTags.of("#Spring");
+
+    var javaRecruitments = RecruitmentsTechStack.builder()
+        .recruitments(recruitments1)
+        .techStackTags(javaTag)
+        .build();
+
+    var springRecruitments = RecruitmentsTechStack.builder()
+        .recruitments(recruitments1)
+        .techStackTags(springTag)
+        .build();
+
+    recruitments1.relateToRecruitmentsTechStack(javaRecruitments);
+    recruitments1.relateToRecruitmentsTechStack(springRecruitments);
+
+    // 모집 포지션
+    var backendEngineer = PositionTags.of("#Backend");
+    var infraEngineer = PositionTags.of("#Infra");
+
+    var backendRecruitments = RecruitmentsPositionTags.builder()
+        .recruitments(recruitments1)
+        .positionTags(backendEngineer)
+        .build();
+
+    var infraRecruitments = RecruitmentsPositionTags.builder()
+        .recruitments(recruitments1)
+        .positionTags(infraEngineer)
+        .build();
+
+    recruitments1.relateRecruitmentsRecruitmentPositionTags(backendRecruitments);
+    recruitments1.relateRecruitmentsRecruitmentPositionTags(infraRecruitments);
+    var savedRecruitments = recruitmentsRepository.save(recruitments1);
+
+    // 업데이트 객체
+    UpdateRecruitmentsRequest request =
+        UpdateRecruitmentsRequest.builder()
+            .recruitmentCategories(RecruitmentCategories.PROJECT)
+            .progressMethods(ProgressMethods.ALL)
+            .techStacks("#Spring")
+            .recruitmentPositions("#Frontend#Backend#Infra#Cloud")
+            .numberOfPeople(5)
+            .progressPeriod(3)
+            .recruitmentDeadline(LocalDate.of(2024, 7, 30))
+            .contract("opentalk@kakao.net")
+            .subject("チームプロジェクトを一緒にする方を募集します")
+            .content("面白いチームプロジェクト")
+            .build();
+
+    String jsonString = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.put("/recruitments/{recruitmentId}", savedRecruitments.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonString))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andDo(print());
+
+    var foundRecruitment = recruitmentsRepository.findById(savedRecruitments.getId()).get();
+    assertThat(foundRecruitment.getRelatedTechStackName(0)).isEqualTo("#Spring");
+    assertThat(foundRecruitment.getRecruitmentsPositionTags().stream().map(
+            recruitmentsPositionTags -> recruitmentsPositionTags.getPositionTags().getPositionTagName())
+        .toList()).containsExactly("#Frontend", "#Backend", "#Infra", "#Cloud");
+
   }
 }

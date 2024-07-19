@@ -13,6 +13,7 @@ import jp.falsystack.backend.recruitments.repositories.PositionTagsRepository;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
+import jp.falsystack.backend.recruitments.usecases.in.UpdateRecruitments;
 import jp.falsystack.backend.recruitments.usecases.out.RecruitmentsResponseForDetailPage;
 import jp.falsystack.backend.recruitments.usecases.out.RecruitmentsResponseForIndexPage;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class RecruitmentUsecases {
 
   private void establishRelationshipWithRecruitmentsRecruitmentPositionTags(Matcher positionMatcher,
       Recruitments recruitments) {
+    recruitments.getRecruitmentsPositionTags().clear();
     while (positionMatcher.find()) {
       PositionTags positionTags = positionTagsRepository.findByPositionTagName(
               positionMatcher.group())
@@ -59,6 +61,7 @@ public class RecruitmentUsecases {
 
   private void establishRelationshipWithRecruitmentsTechStack(Matcher techstackMatcher,
       Recruitments recruitments) {
+    recruitments.getRecruitmentsTechStacks().clear();
     while (techstackMatcher.find()) {
       TechStackTags techStackTags = techStackTagsRepository.findByTechStackTagName(
               techstackMatcher.group())
@@ -133,6 +136,21 @@ public class RecruitmentUsecases {
         recruitmentsRepository::delete, () -> {
           throw new RecruitmentsNotFoundException();
         });
+
+  }
+
+  @Transactional
+  public void updateRecruitmentById(Long recruitmentId, UpdateRecruitments updateRecruitments) {
+    var foundRecruitment = recruitmentsRepository.findById(recruitmentId)
+        .orElseThrow(RecruitmentsNotFoundException::new);
+
+    var techStachMatcher = getMatcher(updateRecruitments.getTechStacks());
+    establishRelationshipWithRecruitmentsTechStack(techStachMatcher, foundRecruitment);
+
+    var positionMatcher = getMatcher(updateRecruitments.getRecruitmentPositions());
+    establishRelationshipWithRecruitmentsRecruitmentPositionTags(positionMatcher, foundRecruitment);
+
+    foundRecruitment.edit(updateRecruitments);
 
   }
 }

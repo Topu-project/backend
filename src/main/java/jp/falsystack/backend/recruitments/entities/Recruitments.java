@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
+import jp.falsystack.backend.recruitments.usecases.in.UpdateRecruitments;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,76 +24,89 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class Recruitments extends BaseEntity {
-    @Id
-    @Column(name = "recruitments_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private RecruitmentCategories recruitmentCategories;
+  @Id
+  @Column(name = "recruitments_id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private ProgressMethods progressMethods;
+  @Enumerated(EnumType.STRING)
+  private RecruitmentCategories recruitmentCategories;
 
-    private Integer numberOfPeople;
+  @Enumerated(EnumType.STRING)
+  private ProgressMethods progressMethods;
 
-    private Integer progressPeriod;
+  private Integer numberOfPeople;
 
-    private LocalDate recruitmentDeadline;
+  private Integer progressPeriod;
 
-    private String contract;
+  private LocalDate recruitmentDeadline;
 
-    private String subject;
+  private String contract;
 
-    @Lob
-    private String content;
+  private String subject;
 
-    private Long views;
+  @Lob
+  private String content;
 
-    @OneToMany(mappedBy = "recruitments", cascade = CascadeType.ALL)
-    private List<RecruitmentsTechStack> recruitmentsTechStacks;
+  private Long views;
 
-    @OneToMany(mappedBy = "recruitments", cascade = CascadeType.ALL)
-    private List<RecruitmentsPositionTags> recruitmentsPositionTags;
+  @OneToMany(mappedBy = "recruitments", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<RecruitmentsTechStack> recruitmentsTechStacks;
 
-    @Builder
-    private Recruitments(RecruitmentCategories recruitmentCategories,
-        ProgressMethods progressMethods, Integer numberOfPeople, Integer progressPeriod,
-        LocalDate recruitmentDeadline, String contract, String subject, String content, Long views,
-        List<RecruitmentsTechStack> recruitmentsTechStacks,
-        List<RecruitmentsPositionTags> recruitmentsPositionTags) {
-        this.recruitmentCategories = recruitmentCategories;
-        this.progressMethods = progressMethods;
-        this.numberOfPeople = numberOfPeople;
-        this.progressPeriod = progressPeriod;
-        this.recruitmentDeadline = recruitmentDeadline;
-        this.contract = contract;
-        this.subject = subject;
-        this.content = content;
-        this.views = views;
-        this.recruitmentsTechStacks = recruitmentsTechStacks == null ? new ArrayList<>() : recruitmentsTechStacks;
-        this.recruitmentsPositionTags = recruitmentsPositionTags
-            == null ? new ArrayList<>() : recruitmentsPositionTags;
+  @OneToMany(mappedBy = "recruitments", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<RecruitmentsPositionTags> recruitmentsPositionTags;
+
+  @Builder
+  private Recruitments(RecruitmentCategories recruitmentCategories,
+      ProgressMethods progressMethods, Integer numberOfPeople, Integer progressPeriod,
+      LocalDate recruitmentDeadline, String contract, String subject, String content, Long views,
+      List<RecruitmentsTechStack> recruitmentsTechStacks,
+      List<RecruitmentsPositionTags> recruitmentsPositionTags) {
+    this.recruitmentCategories = recruitmentCategories;
+    this.progressMethods = progressMethods;
+    this.numberOfPeople = numberOfPeople;
+    this.progressPeriod = progressPeriod;
+    this.recruitmentDeadline = recruitmentDeadline;
+    this.contract = contract;
+    this.subject = subject;
+    this.content = content;
+    this.views = views;
+    this.recruitmentsTechStacks =
+        recruitmentsTechStacks == null ? new ArrayList<>() : recruitmentsTechStacks;
+    this.recruitmentsPositionTags = recruitmentsPositionTags
+        == null ? new ArrayList<>() : recruitmentsPositionTags;
+  }
+
+  public void relateToRecruitmentsTechStack(RecruitmentsTechStack recruitmentsTechStack) {
+    if (recruitmentsTechStack != null) {
+      this.recruitmentsTechStacks.add(recruitmentsTechStack);
     }
+  }
 
-    public void relateToRecruitmentsTechStack(RecruitmentsTechStack recruitmentsTechStack) {
-        if (recruitmentsTechStack != null) {
-            this.recruitmentsTechStacks.add(recruitmentsTechStack);
-        }
+  public void relateRecruitmentsRecruitmentPositionTags(
+      RecruitmentsPositionTags recruitmentsPositionTags) {
+    if (recruitmentsPositionTags != null) {
+      this.recruitmentsPositionTags.add(recruitmentsPositionTags);
     }
+  }
 
-    public void relateRecruitmentsRecruitmentPositionTags(
-        RecruitmentsPositionTags recruitmentsPositionTags) {
-        if (recruitmentsPositionTags != null) {
-            this.recruitmentsPositionTags.add(recruitmentsPositionTags);
-        }
-    }
+  public String getRelatedTechStackName(int index) {
+    return this.recruitmentsTechStacks.get(index).getTechStackTags().getTechStackTagName();
+  }
 
-    public String getRelatedTechStackName(int index) {
-        return this.recruitmentsTechStacks.get(index).getTechStackTags().getTechStackTagName();
-    }
+  public void increasePageViews() {
+    this.views += 1;
+  }
 
-    public void increasePageViews() {
-        this.views += 1;
-    }
+  public void edit(UpdateRecruitments updateRecruitments) {
+    this.recruitmentCategories = updateRecruitments.getRecruitmentCategories();
+    this.progressMethods = updateRecruitments.getProgressMethods();
+    this.numberOfPeople = updateRecruitments.getNumberOfPeople();
+    this.progressPeriod = updateRecruitments.getProgressPeriod();
+    this.recruitmentDeadline = updateRecruitments.getRecruitmentDeadline();
+    this.contract = updateRecruitments.getContract();
+    this.subject = updateRecruitments.getSubject();
+    this.content = updateRecruitments.getContent();
+  }
 }
