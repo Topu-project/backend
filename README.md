@@ -4,7 +4,7 @@
 
 - [x] : Update Recruitment By ID
 - [ ] : Google Login with OAuth2.0
-- [ ] : Adopt Docker
+- [x] : Adopt Docker
 - [ ] : Adopt ECS or EKS
 - [ ] : Change Clean Architecture to Hexagonal Architecture
 
