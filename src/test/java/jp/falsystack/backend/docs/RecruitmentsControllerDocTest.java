@@ -23,6 +23,7 @@ import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
 import jp.falsystack.backend.recruitments.repositories.PositionTagsRepository;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
+import jp.falsystack.backend.recruitments.requests.UpdateRecruitmentsRequest;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -374,6 +375,106 @@ class RecruitmentsControllerDocTest {
                 parameterWithName("recruitmentId").description("모집글 ID")
             )))
         .andDo(print());
+  }
+
+  @Test
+  @DisplayName("모집 응모글을 갱신할 수 있다")
+  void updateRecruitmentsById() throws Exception {
+    // 모집 기술 스택
+    Recruitments recruitments1 = Recruitments.builder()
+        .recruitmentCategories(RecruitmentCategories.PROJECT)
+        .progressMethods(ProgressMethods.ALL)
+        .numberOfPeople(3)
+        .progressPeriod(3)
+        .recruitmentDeadline(LocalDate.of(2024, 6, 30))
+        .contract("opentalk@kakao.net")
+        .subject("チームプロジェクトを一緒にする方を募集します")
+        .content("面白いチームプロジェクト")
+        .build();
+
+    TechStackTags springTag = TechStackTags.of("#Spring");
+    TechStackTags javaTag = TechStackTags.of("#Java");
+
+    RecruitmentsTechStack javaRecruitments = RecruitmentsTechStack.builder()
+        .recruitments(recruitments1)
+        .techStackTags(javaTag)
+        .build();
+
+    RecruitmentsTechStack springRecruitments = RecruitmentsTechStack.builder()
+        .recruitments(recruitments1)
+        .techStackTags(springTag)
+        .build();
+
+    recruitments1.relateToRecruitmentsTechStack(javaRecruitments);
+    recruitments1.relateToRecruitmentsTechStack(springRecruitments);
+
+    // 모집 포지션
+    var backendEngineer = PositionTags.of("#Backend");
+    var infraEngineer = PositionTags.of("#Infra");
+
+    var backendRecruitments = RecruitmentsPositionTags.builder()
+        .recruitments(recruitments1)
+        .positionTags(backendEngineer)
+        .build();
+
+    var infraRecruitments = RecruitmentsPositionTags.builder()
+        .recruitments(recruitments1)
+        .positionTags(infraEngineer)
+        .build();
+
+    recruitments1.relateRecruitmentsRecruitmentPositionTags(backendRecruitments);
+    recruitments1.relateRecruitmentsRecruitmentPositionTags(infraRecruitments);
+    var savedRecruitment = recruitmentsRepository.save(recruitments1);
+
+    // 업데이트 객체
+    UpdateRecruitmentsRequest request =
+        UpdateRecruitmentsRequest.builder()
+            .recruitmentCategories(RecruitmentCategories.PROJECT)
+            .progressMethods(ProgressMethods.ALL)
+            .techStacks("#Spring")
+            .recruitmentPositions("#Frontend#Backend#Infra#Cloud")
+            .numberOfPeople(5)
+            .progressPeriod(3)
+            .recruitmentDeadline(LocalDate.of(2024, 7, 30))
+            .contract("opentalk@kakao.net")
+            .subject("チームプロジェクトを一緒にする方を募集します")
+            .content("面白いチームプロジェクト")
+            .build();
+
+    String jsonString = objectMapper.writeValueAsString(request);
+
+    // when
+    mockMvc
+        .perform(
+            RestDocumentationRequestBuilders.delete("/recruitments/{recruitmentId}",
+                    savedRecruitment.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonString))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andDo(MockMvcRestDocumentation.document("update-recruitment-by-id",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("recruitmentId").description("모집글 ID")
+            ),
+            PayloadDocumentation.requestFields(
+                PayloadDocumentation.fieldWithPath("recruitmentCategories").type(STRING)
+                    .description("모집 카테고리"),
+                PayloadDocumentation.fieldWithPath("progressMethods").type(STRING)
+                    .description("진행방법"),
+                PayloadDocumentation.fieldWithPath("techStacks").type(STRING).description("기술 스택"),
+                PayloadDocumentation.fieldWithPath("recruitmentPositions").type(STRING)
+                    .description("모집 포지션"),
+                PayloadDocumentation.fieldWithPath("numberOfPeople").type(NUMBER)
+                    .description("모집 인원"),
+                PayloadDocumentation.fieldWithPath("progressPeriod").type(NUMBER)
+                    .description("모집 기간"),
+                PayloadDocumentation.fieldWithPath("recruitmentDeadline").type(STRING)
+                    .description("마감 날짜"),
+                PayloadDocumentation.fieldWithPath("contract").type(STRING).description("연락처"),
+                PayloadDocumentation.fieldWithPath("subject").type(STRING).description("제목"),
+                PayloadDocumentation.fieldWithPath("content").type(STRING).description("내용")
+            )));
   }
 
 }

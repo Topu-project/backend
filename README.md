@@ -2,7 +2,7 @@
 
 ## Release 1.0
 
-- [ ] : Update Recruitment By ID
+- [x] : Update Recruitment By ID
 - [ ] : Google Login with OAuth2.0
 - [ ] : Adopt Docker
 - [ ] : Adopt ECS or EKS

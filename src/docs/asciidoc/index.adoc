@@ -97,3 +97,26 @@ include::{snippets}/delete-recruitment-by-id/path-parameters.adoc[]
 ==== HTTP Response
 
 include::{snippets}/delete-recruitment-by-id/http-response.adoc[]
+
+// Update Recruitment By ID
+=== Update Recruitment By ID
+
+==== HTTP Request
+
+include::{snippets}/update-recruitment-by-id/http-request.adoc[]
+
+==== Request Path Parameter
+
+include::{snippets}/update-recruitment-by-id/path-parameters.adoc[]
+
+==== Request Body
+
+include::{snippets}/update-recruitment-by-id/request-body.adoc[]
+
+==== Request Fields
+
+include::{snippets}/update-recruitment-by-id/request-fields.adoc[]
+
+==== HTTP Response
+
+include::{snippets}/update-recruitment-by-id/http-response.adoc[]
