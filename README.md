@@ -7,6 +7,7 @@
 - [x] : Adopt Docker
 - [ ] : Adopt ECS or EKS
 - [ ] : H2 to MySQL
+- [ ] : Segregate `@Entity` to DB layer(External Interfaces Layer)
 
 ## Release 1.x
 
