@@ -6,12 +6,13 @@
 - [ ] : Google Login with OAuth2.0
 - [x] : Adopt Docker
 - [ ] : Adopt ECS or EKS
-- [ ] : Change Clean Architecture to Hexagonal Architecture
+- [ ] : H2 to MySQL
 
 ## Release 1.x
 
 - [ ] : Search by ElasticSearch
 - [ ] : Github Login with OAuth2.0
+- [ ] : Change Clean Architecture to Hexagonal Architecture
 
 ## Release 2.x
 
