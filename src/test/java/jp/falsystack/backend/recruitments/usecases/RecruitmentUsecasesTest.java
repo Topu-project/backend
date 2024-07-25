@@ -55,4 +55,35 @@ class RecruitmentUsecasesTest {
     assertThat(recruitments.get(0).getRecruitmentDeadline()).isEqualTo(LocalDate.of(2024, 10, 01));
   }
 
+  @Transactional
+  @Test
+  @DisplayName("기술스택과 모집포지션은 '#'으로 시작하지 않으면 등록되지 않는다.")
+  void notMatchPattern() {
+    // given
+    var recruitment = PostRecruitments.builder()
+        .recruitmentCategories(RecruitmentCategories.PROJECT)
+        .progressMethods(ProgressMethods.ONLINE)
+        .techStacks("Kotlin")
+        .recruitmentPositions("백엔드")
+        .numberOfPeople(2)
+        .progressPeriod(1)
+        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .contract("kotlin@gmila.com")
+        .subject("백엔드 개발자 모집합니다")
+        .content("추노하지마세요")
+        .build();
+
+    // when
+    usecase.post(recruitment);
+
+    // then
+    var recruitments = repository.findAll();
+    assertThat(recruitments).hasSize(1);
+    assertThat(recruitments.get(0).getRecruitmentCategories()).isEqualTo(
+        RecruitmentCategories.PROJECT);
+    assertThat(recruitments.get(0).getRecruitmentsTechStacks()).hasSize(0);
+    assertThat(recruitments.get(0).getRecruitmentsPositionTags()).hasSize(0);
+    assertThat(recruitments.get(0).getRecruitmentDeadline()).isEqualTo(LocalDate.of(2024, 10, 01));
+  }
+
 }
