@@ -3,12 +3,14 @@ package jp.falsystack.backend.recruitments.usecases;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.List;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
 import jp.falsystack.backend.recruitments.repositories.PositionTagsRepository;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
+import jp.falsystack.backend.recruitments.usecases.out.RecruitmentsResponseForIndexPage;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -128,6 +130,81 @@ class RecruitmentUsecasesTest {
     assertThat(recruitments.get(0).getRecruitmentsTechStacks()).hasSize(0);
     assertThat(recruitments.get(0).getRecruitmentsPositionTags()).hasSize(0);
     assertThat(recruitments.get(0).getRecruitmentDeadline()).isEqualTo(LocalDate.of(2024, 10, 01));
+  }
+
+  @Test
+  @DisplayName("인덱스 페이지용 모집 응모글 목록을 반환할 수 있다")
+  void getRecruitmentsForIndexPage() {
+    // given
+    var backendDeveloper = PostRecruitments.builder()
+        .recruitmentCategories(RecruitmentCategories.PROJECT)
+        .progressMethods(ProgressMethods.ONLINE)
+        .techStacks("#코틀린")
+        .recruitmentPositions("#백엔드")
+        .numberOfPeople(1)
+        .progressPeriod(2)
+        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .contract("kotlin@gmail.com")
+        .subject("백엔드 개발자 모집합니다")
+        .content("추노하지마세요")
+        .build();
+    usecase.post(backendDeveloper);
+
+    var frontendDeveloper = PostRecruitments.builder()
+        .recruitmentCategories(RecruitmentCategories.STUDY)
+        .progressMethods(ProgressMethods.OFFLINE)
+        .techStacks("#리액트")
+        .recruitmentPositions("#프런트엔드")
+        .numberOfPeople(2)
+        .progressPeriod(3)
+        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .contract("react@gmail.com")
+        .subject("프런트엔드 개발자 모집합니다")
+        .content("제발 추노하지마세요")
+        .build();
+    usecase.post(frontendDeveloper);
+
+    var devOps = PostRecruitments.builder()
+        .recruitmentCategories(RecruitmentCategories.PROJECT)
+        .progressMethods(ProgressMethods.ONLINE)
+        .techStacks("#AWS")
+        .recruitmentPositions("#데브옵스")
+        .numberOfPeople(3)
+        .progressPeriod(5)
+        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .contract("devops@gmail.com")
+        .subject("데브옵스 모집합니다!")
+        .content("데브옵스는 추노안하죠?")
+        .build();
+    usecase.post(devOps);
+
+    var dba = PostRecruitments.builder()
+        .recruitmentCategories(RecruitmentCategories.STUDY)
+        .progressMethods(ProgressMethods.OFFLINE)
+        .techStacks("#MySQL")
+        .recruitmentPositions("#DBA")
+        .numberOfPeople(1)
+        .progressPeriod(6)
+        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .contract("mysql@oracle.com")
+        .subject("DBA 모집합니다")
+        .content("DBA 없으면 걍 하려구요")
+        .build();
+    usecase.post(dba);
+
+    // when
+    var recruitments = usecase.getRecruitmentsForIndexPage();
+
+    // then
+    assertThat(recruitments).hasSize(4);
+    assertThat(recruitments.stream()
+        .filter(
+            recruitment -> recruitment.getRecruitmentCategories() == RecruitmentCategories.STUDY)
+        .toList()).hasSize(2);
+    assertThat(recruitments.stream().map(RecruitmentsResponseForIndexPage::getTechStacks)
+        .toList()).hasSize(4)
+        .containsExactlyInAnyOrder(List.of("#MySQL"), List.of("#AWS"), List.of("#코틀린"),
+            List.of("#리액트"));
   }
 
 }
