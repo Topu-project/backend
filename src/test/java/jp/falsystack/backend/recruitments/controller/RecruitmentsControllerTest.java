@@ -1,4 +1,4 @@
-package jp.falsystack.backend.controller;
+package jp.falsystack.backend.recruitments.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
