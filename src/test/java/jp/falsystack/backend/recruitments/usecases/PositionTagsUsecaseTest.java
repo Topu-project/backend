@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import jp.falsystack.backend.recruitments.entities.PositionTags;
 import jp.falsystack.backend.recruitments.repositories.PositionTagsRepository;
+import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
+import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.usecases.out.PositionTagResponse;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,8 +21,18 @@ import org.springframework.test.context.TestConstructor.AutowireMode;
 @TestConstructor(autowireMode = AutowireMode.ALL)
 class PositionTagsUsecaseTest {
 
-  private final PositionTagsRepository repository;
+  private final RecruitmentsRepository recruitmentsRepository;
+  private final PositionTagsRepository positionTagsRepository;
+  private final TechStackTagsRepository techStackTagsRepository;
+
   private final PositionTagsUsecase usecase;
+
+  @BeforeEach
+  void setUp() {
+    recruitmentsRepository.deleteAll();
+    positionTagsRepository.deleteAll();
+    techStackTagsRepository.deleteAll();
+  }
 
   @Test
   @DisplayName("포지션 태그 전체 목록을 반환할 수 있다")
@@ -33,7 +46,8 @@ class PositionTagsUsecaseTest {
     var mysql = PositionTags.of("#MySQL");
     var docker = PositionTags.of("#Docker");
 
-    repository.saveAll(List.of(spring, java, react, javascript, typescript, mysql, docker));
+    positionTagsRepository.saveAll(
+        List.of(spring, java, react, javascript, typescript, mysql, docker));
 
     //when
     var response = usecase.getPositionTagsResponse();

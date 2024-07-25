@@ -10,6 +10,7 @@ import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
 import jp.falsystack.backend.recruitments.usecases.in.PostRecruitments;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,10 +23,18 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 class RecruitmentUsecasesTest {
 
-  private final RecruitmentsRepository repository;
+  private final RecruitmentsRepository recruitmentsRepository;
   private final TechStackTagsRepository techStacksRepository;
   private final PositionTagsRepository positionsRepository;
+
   private final RecruitmentUsecases usecase;
+
+  @BeforeEach
+  void setUp() {
+    recruitmentsRepository.deleteAll();
+    positionsRepository.deleteAll();
+    techStacksRepository.deleteAll();
+  }
 
   @Transactional
   @Test
@@ -49,7 +58,7 @@ class RecruitmentUsecasesTest {
     usecase.post(recruitment);
 
     // then
-    var recruitments = repository.findAll();
+    var recruitments = recruitmentsRepository.findAll();
     assertThat(recruitments).hasSize(1);
     assertThat(recruitments.get(0).getRecruitmentCategories()).isEqualTo(
         RecruitmentCategories.PROJECT);
@@ -112,7 +121,7 @@ class RecruitmentUsecasesTest {
     usecase.post(recruitment);
 
     // then
-    var recruitments = repository.findAll();
+    var recruitments = recruitmentsRepository.findAll();
     assertThat(recruitments).hasSize(1);
     assertThat(recruitments.get(0).getRecruitmentCategories()).isEqualTo(
         RecruitmentCategories.PROJECT);
