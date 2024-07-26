@@ -50,7 +50,7 @@ class RecruitmentUsecasesTest {
         .recruitmentPositions("#백엔드")
         .numberOfPeople(2)
         .progressPeriod(1)
-        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .recruitmentDeadline(LocalDate.of(2024, 10, 1))
         .contract("kotlin@gmila.com")
         .subject("백엔드 개발자 모집합니다")
         .content("추노하지마세요")
@@ -62,12 +62,13 @@ class RecruitmentUsecasesTest {
     // then
     var recruitments = recruitmentsRepository.findAll();
     assertThat(recruitments).hasSize(1);
-    assertThat(recruitments.get(0).getRecruitmentCategories()).isEqualTo(
+    assertThat(recruitments.getFirst().getRecruitmentCategories()).isEqualTo(
         RecruitmentCategories.PROJECT);
-    assertThat(recruitments.get(0).getRelatedTechStackName(0)).isEqualTo("#Kotlin");
-    assertThat(recruitments.get(0).getRecruitmentsPositionTags().get(0).getPositionTags()
+    assertThat(recruitments.getFirst().getRelatedTechStackName(0)).isEqualTo("#Kotlin");
+    assertThat(recruitments.getFirst().getRecruitmentsPositionTags().getFirst().getPositionTags()
         .getPositionTagName()).isEqualTo("#백엔드");
-    assertThat(recruitments.get(0).getRecruitmentDeadline()).isEqualTo(LocalDate.of(2024, 10, 01));
+    assertThat(recruitments.getFirst().getRecruitmentDeadline()).isEqualTo(
+        LocalDate.of(2024, 10, 1));
   }
 
   @Test
@@ -81,7 +82,7 @@ class RecruitmentUsecasesTest {
         .recruitmentPositions("#백엔드")
         .numberOfPeople(2)
         .progressPeriod(1)
-        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .recruitmentDeadline(LocalDate.of(2024, 10, 1))
         .contract("kotlin@gmila.com")
         .subject("백엔드 개발자 모집합니다")
         .content("추노하지마세요")
@@ -95,10 +96,10 @@ class RecruitmentUsecasesTest {
     var techStacks = techStacksRepository.findAll();
 
     assertThat(positions).hasSize(1);
-    assertThat(positions.get(0).getPositionTagName()).isEqualTo("#백엔드");
+    assertThat(positions.getFirst().getPositionTagName()).isEqualTo("#백엔드");
 
     assertThat(techStacks).hasSize(1);
-    assertThat(techStacks.get(0).getTechStackTagName()).isEqualTo("#Kotlin");
+    assertThat(techStacks.getFirst().getTechStackTagName()).isEqualTo("#Kotlin");
   }
 
   @Transactional
@@ -113,7 +114,7 @@ class RecruitmentUsecasesTest {
         .recruitmentPositions("백엔드")
         .numberOfPeople(2)
         .progressPeriod(1)
-        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .recruitmentDeadline(LocalDate.of(2024, 10, 1))
         .contract("kotlin@gmila.com")
         .subject("백엔드 개발자 모집합니다")
         .content("추노하지마세요")
@@ -125,11 +126,12 @@ class RecruitmentUsecasesTest {
     // then
     var recruitments = recruitmentsRepository.findAll();
     assertThat(recruitments).hasSize(1);
-    assertThat(recruitments.get(0).getRecruitmentCategories()).isEqualTo(
+    assertThat(recruitments.getFirst().getRecruitmentCategories()).isEqualTo(
         RecruitmentCategories.PROJECT);
-    assertThat(recruitments.get(0).getRecruitmentsTechStacks()).hasSize(0);
-    assertThat(recruitments.get(0).getRecruitmentsPositionTags()).hasSize(0);
-    assertThat(recruitments.get(0).getRecruitmentDeadline()).isEqualTo(LocalDate.of(2024, 10, 01));
+    assertThat(recruitments.getFirst().getRecruitmentsTechStacks()).isEmpty();
+    assertThat(recruitments.getFirst().getRecruitmentsPositionTags()).isEmpty();
+    assertThat(recruitments.getFirst().getRecruitmentDeadline()).isEqualTo(
+        LocalDate.of(2024, 10, 1));
   }
 
   @Test
@@ -143,7 +145,7 @@ class RecruitmentUsecasesTest {
         .recruitmentPositions("#백엔드")
         .numberOfPeople(1)
         .progressPeriod(2)
-        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .recruitmentDeadline(LocalDate.of(2024, 10, 1))
         .contract("kotlin@gmail.com")
         .subject("백엔드 개발자 모집합니다")
         .content("추노하지마세요")
@@ -157,7 +159,7 @@ class RecruitmentUsecasesTest {
         .recruitmentPositions("#프런트엔드")
         .numberOfPeople(2)
         .progressPeriod(3)
-        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .recruitmentDeadline(LocalDate.of(2024, 10, 1))
         .contract("react@gmail.com")
         .subject("프런트엔드 개발자 모집합니다")
         .content("제발 추노하지마세요")
@@ -171,7 +173,7 @@ class RecruitmentUsecasesTest {
         .recruitmentPositions("#데브옵스")
         .numberOfPeople(3)
         .progressPeriod(5)
-        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .recruitmentDeadline(LocalDate.of(2024, 10, 1))
         .contract("devops@gmail.com")
         .subject("데브옵스 모집합니다!")
         .content("데브옵스는 추노안하죠?")
@@ -185,7 +187,7 @@ class RecruitmentUsecasesTest {
         .recruitmentPositions("#DBA")
         .numberOfPeople(1)
         .progressPeriod(6)
-        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .recruitmentDeadline(LocalDate.of(2024, 10, 1))
         .contract("mysql@oracle.com")
         .subject("DBA 모집합니다")
         .content("DBA 없으면 걍 하려구요")
@@ -219,13 +221,13 @@ class RecruitmentUsecasesTest {
         .recruitmentPositions("#백엔드")
         .numberOfPeople(1)
         .progressPeriod(2)
-        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .recruitmentDeadline(LocalDate.of(2024, 10, 1))
         .contract("kotlin@gmail.com")
         .subject("백엔드 개발자 모집합니다")
         .content("추노하지마세요")
         .build();
     usecase.post(backendDeveloper);
-    var savedRecruitment = recruitmentsRepository.findAll().get(0);
+    var savedRecruitment = recruitmentsRepository.findAll().getFirst();
 
     // when
     var foundRecruitment = usecase.getRecruitmentsById(savedRecruitment.getId());
