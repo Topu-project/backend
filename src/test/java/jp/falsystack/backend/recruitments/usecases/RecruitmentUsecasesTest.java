@@ -240,7 +240,7 @@ class RecruitmentUsecasesTest {
     assertThat(foundRecruitment.getRecruitmentPositions().getFirst()).isEqualTo("#백엔드");
     assertThat(foundRecruitment.getNumberOfPeople()).isEqualTo(1);
     assertThat(foundRecruitment.getProgressPeriod()).isEqualTo(2);
-    assertThat(foundRecruitment.getRecruitmentDeadline()).isEqualTo(LocalDate.of(2024, 10, 01));
+    assertThat(foundRecruitment.getRecruitmentDeadline()).isEqualTo(LocalDate.of(2024, 10, 1));
     assertThat(foundRecruitment.getContract()).isEqualTo("kotlin@gmail.com");
     assertThat(foundRecruitment.getSubject()).isEqualTo("백엔드 개발자 모집합니다");
     assertThat(foundRecruitment.getContent()).isEqualTo("추노하지마세요");
