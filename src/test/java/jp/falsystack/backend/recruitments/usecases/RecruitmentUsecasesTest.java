@@ -207,4 +207,41 @@ class RecruitmentUsecasesTest {
             List.of("#리액트"));
   }
 
+  @Transactional
+  @Test
+  @DisplayName("모집 응모 ID를 이용하여 모집 응모글을 조회하고 존재할 경우 반환한다")
+  void getRecruitmentByID() {
+    // given
+    var backendDeveloper = PostRecruitments.builder()
+        .recruitmentCategories(RecruitmentCategories.PROJECT)
+        .progressMethods(ProgressMethods.ONLINE)
+        .techStacks("#코틀린")
+        .recruitmentPositions("#백엔드")
+        .numberOfPeople(1)
+        .progressPeriod(2)
+        .recruitmentDeadline(LocalDate.of(2024, 10, 01))
+        .contract("kotlin@gmail.com")
+        .subject("백엔드 개발자 모집합니다")
+        .content("추노하지마세요")
+        .build();
+    usecase.post(backendDeveloper);
+    var savedRecruitment = recruitmentsRepository.findAll().get(0);
+
+    // when
+    var foundRecruitment = usecase.getRecruitmentsById(savedRecruitment.getId());
+
+    // then
+    assertThat(foundRecruitment.getRecruitmentCategories()).isEqualTo(
+        RecruitmentCategories.PROJECT);
+    assertThat(foundRecruitment.getProgressMethods()).isEqualTo(ProgressMethods.ONLINE);
+    assertThat(foundRecruitment.getTechStacks().getFirst()).isEqualTo("#코틀린");
+    assertThat(foundRecruitment.getRecruitmentPositions().getFirst()).isEqualTo("#백엔드");
+    assertThat(foundRecruitment.getNumberOfPeople()).isEqualTo(1);
+    assertThat(foundRecruitment.getProgressPeriod()).isEqualTo(2);
+    assertThat(foundRecruitment.getRecruitmentDeadline()).isEqualTo(LocalDate.of(2024, 10, 01));
+    assertThat(foundRecruitment.getContract()).isEqualTo("kotlin@gmail.com");
+    assertThat(foundRecruitment.getSubject()).isEqualTo("백엔드 개발자 모집합니다");
+    assertThat(foundRecruitment.getContent()).isEqualTo("추노하지마세요");
+  }
+
 }
