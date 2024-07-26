@@ -1,11 +1,13 @@
 package jp.falsystack.backend.recruitments.usecases;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
 import java.util.List;
 import jp.falsystack.backend.recruitments.entities.enums.ProgressMethods;
 import jp.falsystack.backend.recruitments.entities.enums.RecruitmentCategories;
+import jp.falsystack.backend.recruitments.entities.exception.RecruitmentsNotFoundException;
 import jp.falsystack.backend.recruitments.repositories.PositionTagsRepository;
 import jp.falsystack.backend.recruitments.repositories.RecruitmentsRepository;
 import jp.falsystack.backend.recruitments.repositories.TechStackTagsRepository;
@@ -244,6 +246,55 @@ class RecruitmentUsecasesTest {
     assertThat(foundRecruitment.getContract()).isEqualTo("kotlin@gmail.com");
     assertThat(foundRecruitment.getSubject()).isEqualTo("백엔드 개발자 모집합니다");
     assertThat(foundRecruitment.getContent()).isEqualTo("추노하지마세요");
+  }
+
+  @Test
+  @DisplayName("존재하지 않는 모집 응모 ID로 조회할 때 예외를 발생시킨다")
+  void getRecruitmentByNotExistID() {
+    // given
+    var recruitmentId = 99L;
+    // expected
+
+    assertThatThrownBy(() -> usecase.getRecruitmentsById(recruitmentId))
+        .isInstanceOf(RecruitmentsNotFoundException.class)
+        .hasMessage("해당 모집글을 찾을 수 없습니다.");
+  }
+
+  @Test
+  @DisplayName("존재하지 않는 모집 응모 ID로 삭제하려고 하면 예외를 발생시킨다")
+  void deleteRecruitmentByNotExistID() {
+    // given
+    var recruitmentId = 99L;
+
+    // expected
+    assertThatThrownBy(() -> usecase.deleteRecruitmentById(recruitmentId))
+        .isInstanceOf(RecruitmentsNotFoundException.class)
+        .hasMessage("해당 모집글을 찾을 수 없습니다.");
+  }
+
+  @Test
+  @DisplayName("특정 모집 응모글을 ID 를 지정하여 삭제하면 모집 응모 목록에서 제거된다")
+  void deleteRecruitmentByID() {
+    // given
+    var backendDeveloper = PostRecruitments.builder()
+        .recruitmentCategories(RecruitmentCategories.PROJECT)
+        .progressMethods(ProgressMethods.ONLINE)
+        .techStacks("#코틀린")
+        .recruitmentPositions("#백엔드")
+        .numberOfPeople(1)
+        .progressPeriod(2)
+        .recruitmentDeadline(LocalDate.of(2024, 10, 1))
+        .contract("kotlin@gmail.com")
+        .subject("백엔드 개발자 모집합니다")
+        .content("추노하지마세요")
+        .build();
+    var savedRecruitment = recruitmentsRepository.save(backendDeveloper.toRecruitment());
+
+    // when
+    usecase.deleteRecruitmentById(savedRecruitment.getId());
+
+    // then
+    assertThat(recruitmentsRepository.findAll()).isEmpty();
   }
 
 }
